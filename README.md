@@ -12,8 +12,10 @@ Prep study notes for an independent research project on KAN (Kolmogorov-Arnold N
 - [Mu Li's Course - Dive into Deep Learning](mu-li-course/)
 
 ### Calculus
+- [Thomas' Calculus + MIT 18.01/18.02](calculus/)
 
 ### Probability
+- [Introduction to Probability + MIT 6.041/18.05](probability/)
 
 ---
 *Notes updated regularly*
