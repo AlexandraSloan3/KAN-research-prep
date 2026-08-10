@@ -1,9 +1,11 @@
 # Ch 2 - Preliminaries
 
-One-line summary of what this chapter covers (e.g. tensors, data manipulation, autograd basics).
+Data manipulation basics from D2L — tensor creation, operators, broadcasting, indexing/slicing, memory-efficient in-place ops, and NumPy interop.
 
-## What I built
-- `tensor_basics.py` — brief note on what it does
+## Notebooks
+
+- [`2.1-data-manipulation.ipynb`](2.1-data-manipulation.ipynb) — Section 2.1 walked through sentence-by-sentence with extensions (faster slicing methods, `torch.from_numpy` vs `torch.tensor`, `reshape` vs `view`, autograd caveats on in-place ops)
 
 ## Takeaway
-One or two sentences: what was tricky, what clicked, or what you'd want to remember later.
+
+`reshape`/`.numpy()` share memory with the original tensor when possible, but `torch.tensor(array)` always copies — a subtle gotcha the textbook glosses over. In-place ops are essential for memory efficiency but can break autograd on leaf tensors later.
