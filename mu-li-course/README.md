@@ -1,10 +1,4 @@
-# Mu Li's "Dive into Deep Learning" — Code Notes
+# Mu Li's "Dive into Deep Learning" — Study Notes & Code
 
-Following [Dive into Deep Learning](https://d2l.ai) (Mu Li et al.) as prep for KAN research.
-This folder only contains my own code and experiments — not reproductions of the book's text.
+Following [Dive into Deep Learning](https://d2l.ai) (Mu Li et al.) as prep for KAN research. This folder contains both book-annotation notebooks (sentence-by-sentence walkthroughs with extensions) and my own code/experiments.
 
-## Progress
-- [x] Ch 2 - Preliminaries
-- [ ] Ch 3 - Linear Regression
-- [ ] Ch 4 - Multilayer Perceptrons
-- [ ] ...
