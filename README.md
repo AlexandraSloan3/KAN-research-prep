@@ -16,6 +16,7 @@ Prep study notes for an independent research project on KAN (Kolmogorov-Arnold N
 ### Deep Learning Foundations
 - [Mu Li's Course - Dive into Deep Learning](mu-li-course/)
   - [Chapter 1 - Introduction](mu-li-course/ch01-introduction/)
+  - [Chapter 2 - Preliminaries](mu-li-course/ch02-preliminaries/)
 ### Calculus
 - [Thomas' Calculus + MIT 18.01/18.02](calculus/)
 
