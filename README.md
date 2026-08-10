@@ -6,9 +6,12 @@ Prep study notes for an independent research project on KAN (Kolmogorov-Arnold N
 
 ### Linear Algebra
 - [MIT 18.06 (2010) - Gilbert Strang](MIT18.06(2010)/)
-  - [Lecture 1 - The Geometry of Linear Equations](MIT18.06(2010)/lecture-01/)
-  - [Lecture 2 - Elimination with Matrices](MIT18.06(2010)/lecture-02/)
-  - [Lecture 3 - Matrix operations and inverses](MIT18.06(2010)/lecture-03/)
+  - **Lectures**
+    - [Lecture 1 - The Geometry of Linear Equations](MIT18.06(2010)/lecture-01/)
+    - [Lecture 2 - Elimination with Matrices](MIT18.06(2010)/lecture-02/)
+    - [Lecture 3 - Matrix operations and inverses](MIT18.06(2010)/lecture-03/)
+  - **Textbook Notes**
+  
 
 ### Deep Learning Foundations
 - [Mu Li's Course - Dive into Deep Learning](mu-li-course/)
