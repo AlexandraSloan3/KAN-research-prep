@@ -45,6 +45,21 @@ notebook collection is incomplete and will grow independently.
 
 ## Licence
 
-The repository-level [`LICENSE`](LICENSE) covers the original notes. Vendored
-KaoNotes/kaobook files under `math-notes/source/` retain their separate LPPL
-licence in that directory.
+Except for separately identified third-party material, the original
+mathematical prose, explanations, examples, derivations, and arrangement in
+`math-notes/` are licensed under
+[CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+
+You may share unmodified copies for non-commercial purposes with appropriate
+attribution. Commercial use and distribution of modified, translated,
+abridged, or otherwise adapted versions require separate written permission
+from the copyright holder.
+
+See [`LICENSE-CONTENT.md`](LICENSE-CONTENT.md) for the complete scope and
+licensing notice.
+
+Vendored KaoNotes/kaobook class and style files remain under the LPPL 1.3c.
+Notebooks and source code are not covered unless explicitly stated otherwise.
+
+Earlier repository versions remain subject to the licences under which they
+were originally published.
