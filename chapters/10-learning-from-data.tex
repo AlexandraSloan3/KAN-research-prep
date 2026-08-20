@@ -1,0 +1,135 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Linear Algebra behind Learning from Data}
+\labch{learning-from-data}
+
+\sources{Strang, \emph{Introduction to Linear Algebra}, 6th ed.\ \cite{strang2023ila},
+Chapter~10; Zhang, Lipton, Li and Smola, \emph{Dive into Deep Learning}
+\cite{d2l2023}, Chapter~2.}
+
+This chapter closes Part~I by putting the factorisations to work on data. Nothing
+new is proved; the point is to see that the objects of the previous nine
+chapters are the objects a learning system manipulates.
+
+\section{Data as a matrix}
+\labsec{data-matrix}
+
+Store \(n\) examples with \(d\) features each as \(X\in\R^{n\times d}\), one
+example per row. Two readings, both from \refsec{four-ways}, are used
+constantly:
+
+\begin{description}
+	\item[By rows] each row is a point in \(\R^{d}\), and the dataset is a cloud
+	of \(n\) such points.
+	\item[By columns] each column is one feature measured across all examples,
+	and the column space of \(X\) is the set of quantities expressible as
+	weighted mixtures of features.
+\end{description}
+
+A linear model is then \(\hat{\vect{y}}=X\vect{w}\), so the achievable
+predictions form exactly \(\Col(X)\), and fitting it by least squares is the
+projection of \refch{orthogonality}.
+
+\marginnote{This is the sense in which linear algebra is not a prerequisite for
+learning but a description of it. The reachability question of
+\refch{vectors-and-column-space} is the question of what a linear model can
+represent.}
+
+\section{Centring and covariance}
+\labsec{covariance}
+
+Subtracting the mean of each column gives the centred matrix \(X_0\). The
+\emph{sample covariance matrix} is
+\[
+	S=\frac{1}{n-1}X_0\tp X_0\in\R^{d\times d},
+\]
+symmetric and positive semidefinite by \refsec{positive-definite}, with
+\(s_{jj}\) the variance of feature \(j\) and \(s_{jk}\) the covariance between
+features \(j\) and \(k\).
+
+\begin{example}
+Let
+\[
+	X_0=\begin{bmatrix}2&1\\1&2\\-2&-1\\-1&-2\end{bmatrix},
+\]
+whose columns already sum to zero. Then
+\(X_0\tp X_0=\begin{bmatrix}10&8\\8&10\end{bmatrix}\) and
+\(S=\tfrac13X_0\tp X_0\). The eigenvalues of \(X_0\tp X_0\) are \(18\) and \(2\),
+with eigenvectors \([1,1]\tp\) and \([1,-1]\tp\).
+\end{example}
+
+\section{Principal components}
+\labsec{pca}
+
+Principal component analysis asks for the direction \(\vect{q}\) of unit length
+along which the projected data vary most. That is the maximiser of
+\(\vect{q}\tp S\vect{q}\), and by the spectral theorem it is the eigenvector of
+\(S\) belonging to the largest eigenvalue.
+
+\begin{proposition}
+The principal directions of \(X_0\) are its right singular vectors, and the
+variance captured by the \(i\)th component is proportional to \(\sigma_i^{2}\).
+\end{proposition}
+
+\begin{proof}
+Writing \(X_0=U\Sigma V\tp\) gives \(X_0\tp X_0=V\Sigma\tp\Sigma V\tp\), which is
+the eigendecomposition of a symmetric matrix with eigenvalues \(\sigma_i^{2}\)
+and eigenvectors \(\vect{v}_i\).
+\end{proof}
+
+\begin{example}[continued]
+Here \(\sigma_1=\sqrt{18}=3\sqrt2\) and \(\sigma_2=\sqrt2\), so the first
+component \([1,1]\tp/\sqrt2\) accounts for \(18/20=90\%\) of the total variance.
+Projecting onto it replaces two features by one while discarding a tenth of the
+spread.
+\end{example}
+
+\marginnote{Computing the singular value decomposition of \(X_0\) is preferable
+to forming \(S\) first, for the conditioning reason given in
+\refsec{conditioning}.}
+
+\section{Low rank as a modelling assumption}
+\labsec{low-rank}
+
+Eckart--Young (\refsec{eckart-young}) says the truncated sum
+\(A_k=\sum_{i\le k}\sigma_i\vect{u}_i\vect{v}_i\tp\) is the best rank-\(k\)
+approximation. Three familiar techniques are that theorem applied to different
+matrices: dimensionality reduction applies it to a data matrix, compression of a
+trained layer applies it to a weight matrix, and latent-factor recommendation
+applies it to a partially observed ratings matrix.
+
+\begin{remark}
+The assumption being made each time is that the interesting structure lives in
+few directions and the rest is noise. Whether that is true is a modelling
+question about the data, not a mathematical one --- the theorem is silent about
+where to cut.
+\end{remark}
+
+\section{Batched computation}
+\labsec{batching}
+
+A linear layer applied to a batch is one matrix product. With \(X\in\R^{n\times d}\)
+and weights \(W\in\R^{d\times h}\),
+\[
+	Z=XW+\vect{1}\vect{b}\tp\in\R^{n\times h},
+\]
+where \(\vect{1}\in\R^{n}\) broadcasts the bias across rows. The block reading of
+\refsec{four-ways} is what makes this efficient: the product decomposes into
+independent blocks that hardware evaluates in parallel, which is the practical
+reason mini-batches exist at all.
+
+\begin{remark}
+Bias makes the layer \emph{affine} rather than linear, so it violates
+\(T(\vect{0})=\vect{0}\) from \refsec{linear-maps}. Nothing breaks --- an affine
+map is a linear map followed by a shift --- but statements proved for linear
+maps have to be applied to the linear part alone.
+\end{remark}
+
+\section{What carries forward}
+\labsec{part1-summary}
+
+Four ideas from Part~I are used without further comment in the rest of the book:
+the column space as the set of reachable outputs; orthogonal projection as the
+solution of a least-squares problem; the eigenvalues of a symmetric matrix as
+the curvature of a quadratic; and the singular value decomposition as the
+canonical way to separate signal from remainder. \refch{column-space-to-layers}
+returns to them once the calculus and probability are in place.

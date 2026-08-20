@@ -1,0 +1,225 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Orthogonality, Projection, and Least Squares}
+\labch{orthogonality}
+
+\sources{Strang, \emph{Introduction to Linear Algebra}, 6th ed.\ \cite{strang2023ila},
+§4.1--4.4; MIT 18.06 \cite{ocw1806}, Lectures~14--17.}
+
+Most systems that arise from measurements have no solution: there are more
+equations than unknowns and the data are noisy. Rather than give up, one asks
+for the vector that comes closest. Orthogonality is what makes ``closest''
+computable.
+
+\section{Inner products, length, and angle}
+\labsec{inner-products}
+
+For \(\vect{u},\vect{v}\in\R^{n}\) the inner product is
+\(\vect{u}\tp\vect{v}=\sum_i u_iv_i\), the length is
+\(\lVert\vect{v}\rVert=\sqrt{\vect{v}\tp\vect{v}}\), and the two vectors are
+\emph{orthogonal} when \(\vect{u}\tp\vect{v}=0\).
+
+\begin{proposition}
+\(\vect{u}\tp\vect{v}=0\) if and only if
+\(\lVert\vect{u}+\vect{v}\rVert^{2}=\lVert\vect{u}\rVert^{2}+\lVert\vect{v}\rVert^{2}\).
+\end{proposition}
+
+\begin{proof}
+Expanding,
+\(\lVert\vect{u}+\vect{v}\rVert^{2}
+=(\vect{u}+\vect{v})\tp(\vect{u}+\vect{v})
+=\lVert\vect{u}\rVert^{2}+2\vect{u}\tp\vect{v}+\lVert\vect{v}\rVert^{2}\).
+The two sides agree exactly when the cross term vanishes.
+\end{proof}
+
+\marginnote{So Pythagoras is not an analogy imported from geometry; it is the
+algebraic identity above, and it holds in \(\R^{n}\) for every \(n\).}
+
+\section{Orthogonal subspaces}
+\labsec{orthogonal-subspaces}
+
+Two subspaces \(V,W\) are orthogonal when \(\vect{v}\tp\vect{w}=0\) for every
+\(\vect{v}\in V\) and \(\vect{w}\in W\). The four subspaces of
+\refch{four-subspaces} pair up in exactly this way.
+
+\begin{theorem}
+For any \(A\in\R^{m\times n}\), the nullspace and the row space are orthogonal
+complements in \(\R^{n}\), and the left nullspace and the column space are
+orthogonal complements in \(\R^{m}\).
+\end{theorem}
+
+\begin{proof}
+If \(A\vect{x}=\vect{0}\) then every row of \(A\) has zero inner product with
+\(\vect{x}\), hence so does every combination of rows: \(\Null(A)\) is orthogonal
+to \(\Col(A\tp)\). Their dimensions are \(n-r\) and \(r\), which sum to \(n\), so
+neither can be enlarged inside the other's complement. Applying the same
+argument to \(A\tp\) gives the second pair.
+\end{proof}
+
+\begin{remark}
+This upgrades rank--nullity from an accounting identity to a geometric
+statement. The input space splits into a part the matrix reproduces faithfully
+and a part it annihilates, and the two parts meet at right angles.
+\end{remark}
+
+\section{Projection onto a line}
+\labsec{projection-line}
+
+Given \(\vect{a}\neq\vect{0}\), the point of the line \(\{c\vect{a}\}\) closest
+to \(\vect{b}\) is the one for which the error \(\vect{b}-c\vect{a}\) is
+perpendicular to \(\vect{a}\):
+\[
+	\vect{a}\tp(\vect{b}-c\vect{a})=0
+	\quad\Longrightarrow\quad
+	c=\frac{\vect{a}\tp\vect{b}}{\vect{a}\tp\vect{a}},
+	\qquad
+	\vect{p}=\frac{\vect{a}\tp\vect{b}}{\vect{a}\tp\vect{a}}\,\vect{a}.
+\]
+
+Writing this as a matrix acting on \(\vect{b}\) gives the projection matrix
+\[
+	P=\frac{\vect{a}\vect{a}\tp}{\vect{a}\tp\vect{a}},
+	\qquad
+	P^{2}=P,\qquad P\tp=P .
+\]
+
+\marginnote{\(P^{2}=P\) says projecting twice is projecting once, which any
+sensible notion of ``closest point'' must satisfy. Symmetry is the algebraic
+trace of the right angle.}
+
+\begin{example}
+With \(\vect{a}=[1,1,1]\tp\) and \(\vect{b}=[1,2,2]\tp\),
+\(\vect{a}\tp\vect{b}=5\) and \(\vect{a}\tp\vect{a}=3\), so
+\(\vect{p}=\tfrac{5}{3}[1,1,1]\tp\) and the error
+\(\vect{b}-\vect{p}=\tfrac{1}{3}[-2,1,1]\tp\) indeed satisfies
+\(\vect{a}\tp(\vect{b}-\vect{p})=0\).
+\end{example}
+
+\section{Projection onto a subspace}
+\labsec{projection-subspace}
+
+Replace the single vector by the columns of \(A\in\R^{m\times n}\) and look for
+\(\hat{\vect{x}}\) making \(\vect{b}-A\hat{\vect{x}}\) orthogonal to every
+column. That is \(A\tp(\vect{b}-A\hat{\vect{x}})=\vect{0}\), or
+
+\begin{equation}
+	A\tp A\hat{\vect{x}}=A\tp\vect{b},
+	\labeq{normal-equations}
+\end{equation}
+
+the \emph{normal equations}. When the columns of \(A\) are independent,
+\(A\tp A\) is invertible and
+\[
+	\hat{\vect{x}}=(A\tp A)^{-1}A\tp\vect{b},
+	\qquad
+	\vect{p}=A\hat{\vect{x}}=A(A\tp A)^{-1}A\tp\vect{b}.
+\]
+
+\begin{proposition}
+If the columns of \(A\) are linearly independent then \(A\tp A\) is invertible.
+\end{proposition}
+
+\begin{proof}
+Suppose \(A\tp A\vect{x}=\vect{0}\). Then
+\(\vect{x}\tp A\tp A\vect{x}=\lVert A\vect{x}\rVert^{2}=0\), so
+\(A\vect{x}=\vect{0}\), and independence of the columns forces
+\(\vect{x}=\vect{0}\). A square matrix with trivial nullspace is invertible.
+\end{proof}
+
+\marginnote{The proof is the reason \(A\tp A\) appears everywhere. It converts a
+rectangular problem into a square one without losing information, provided the
+columns were independent to begin with.}
+
+\section{Least squares}
+\labsec{least-squares}
+
+Solving \refeq{normal-equations} minimises \(\lVert A\vect{x}-\vect{b}\rVert^{2}\)
+over all \(\vect{x}\). This is the standard way to fit a model with more
+observations than parameters.
+
+\begin{example}
+Fit a straight line \(b=C+Dt\) through the points \((1,1)\), \((2,2)\),
+\((3,2)\). Then
+\[
+	A=\begin{bmatrix}1&1\\1&2\\1&3\end{bmatrix},
+	\qquad
+	\vect{b}=\begin{bmatrix}1\\2\\2\end{bmatrix},
+	\qquad
+	A\tp A=\begin{bmatrix}3&6\\6&14\end{bmatrix},
+	\qquad
+	A\tp\vect{b}=\begin{bmatrix}5\\11\end{bmatrix}.
+\]
+The normal equations \(3C+6D=5\) and \(6C+14D=11\) give \(D=\tfrac{1}{2}\) and
+\(C=\tfrac{2}{3}\), so the best line is \(b=\tfrac{2}{3}+\tfrac{1}{2}t\). The
+residuals are \(-\tfrac{1}{6},\tfrac{1}{3},-\tfrac{1}{6}\); they sum to zero and
+satisfy \(A\tp\vect{e}=\vect{0}\), confirming that the error is orthogonal to the
+column space.
+\end{example}
+
+\begin{remark}
+Least squares is the first place where a linear algebra identity and a
+minimisation problem coincide. The same coincidence returns in
+\refch{optimization} for quadratic objectives and again in \refch{estimation},
+where minimising squared error turns out to be maximum likelihood under Gaussian
+noise.
+\end{remark}
+
+\section{Orthonormal bases and Gram--Schmidt}
+\labsec{gram-schmidt}
+
+A set \(\{\vect{q}_1,\ldots,\vect{q}_n\}\) is \emph{orthonormal} when
+\(\vect{q}_i\tp\vect{q}_j\) equals \(1\) for \(i=j\) and \(0\) otherwise.
+Collecting them as columns of \(Q\) gives \(Q\tp Q=I\), and when \(Q\) is square
+this is \(Q^{-1}=Q\tp\).
+
+Orthonormal columns simplify everything above: the normal equations collapse to
+\(\hat{\vect{x}}=Q\tp\vect{b}\), and the projection matrix becomes
+\(P=QQ\tp\), with no inverse to compute.
+
+\marginnote{Numerically this is the difference between a stable computation and
+an unstable one. Forming \(A\tp A\) squares the condition number of \(A\);
+orthogonalising first avoids that.}
+
+Gram--Schmidt manufactures an orthonormal basis from any independent set by
+subtracting, from each vector in turn, its projection onto everything already
+accepted.
+
+\begin{example}
+For \(A=\begin{bmatrix}1&1\\1&0\\0&1\end{bmatrix}\), start with
+\(\vect{q}_1=\tfrac{1}{\sqrt2}[1,1,0]\tp\). Subtracting the projection of the
+second column,
+\[
+	\begin{bmatrix}1\\0\\1\end{bmatrix}
+	-\tfrac{1}{2}\begin{bmatrix}1\\1\\0\end{bmatrix}
+	=\begin{bmatrix}\tfrac12\\-\tfrac12\\1\end{bmatrix},
+	\qquad
+	\vect{q}_2=\tfrac{1}{\sqrt6}\begin{bmatrix}1\\-1\\2\end{bmatrix}.
+\]
+\end{example}
+
+\section{The factorisation \texorpdfstring{\(A=QR\)}{A=QR}}
+\labsec{qr}
+
+Recording the coefficients used during Gram--Schmidt gives a second
+factorisation alongside \(A=LU\).
+
+\begin{theorem}
+If \(A\in\R^{m\times n}\) has independent columns then \(A=QR\), where the
+columns of \(Q\in\R^{m\times n}\) are orthonormal and \(R\in\R^{n\times n}\) is
+upper triangular with positive diagonal entries.
+\end{theorem}
+
+For the example above,
+\[
+	R=\begin{bmatrix}\sqrt2 & \tfrac{1}{\sqrt2}\\[2pt] 0 & \sqrt{\tfrac32}\end{bmatrix},
+\]
+and multiplying \(QR\) returns the two original columns. Substituting \(A=QR\)
+into the normal equations turns them into the triangular system
+\(R\hat{\vect{x}}=Q\tp\vect{b}\), which is how least squares is solved in
+practice.
+
+\begin{remark}
+Two factorisations, two purposes. \(A=LU\) records elimination and answers
+questions about solving; \(A=QR\) records orthogonalisation and answers
+questions about approximating. \refch{svd} produces a third that does both and
+survives rank deficiency as well.
+\end{remark}

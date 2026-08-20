@@ -1,0 +1,206 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Mathematical Foundations for Kolmogorov-Arnold Networks
+% A Continuous Study Record
+%
+% Author: J Song (Alex)
+% Contact: jsong.alex@proton.me
+%
+% Typeset with KaoNotes (https://github.com/AlexandraSloan3/kaonotes),
+% which adapts the kaobook class by Federico Marotta.
+%
+% Build: xelatex -> bibtex -> xelatex -> xelatex   (or: latexmk main.tex)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% !TEX program = xelatex
+% !TEX encoding = UTF-8
+
+\documentclass[
+	a4paper,
+	fontsize=10pt,
+	twoside=true,
+	open=any,        % avoid inserted blank pages between chapters
+	titlepage=false, % compact title, no empty title-back page
+	numbers=noenddot,
+]{kaobook}
+
+%------------------------------------------------------------------------------
+% LANGUAGE
+% The body of this book is written entirely in English, so no CJK support is
+% loaded. If a Traditional Chinese passage ever becomes unavoidable, enable
+% xeCJK here and set \setCJKmainfont{Noto Serif TC} -- do not substitute
+% another face.
+%------------------------------------------------------------------------------
+
+\usepackage{polyglossia}
+\setmainlanguage{english}
+\usepackage[english=british]{csquotes}
+
+% Pin the monospaced face so that URLs and identifiers look identical on every
+% machine. Libertinus Mono ships with the Libertinus family that kaobook
+% already requires, so this adds no new font dependency.
+\setmonofont{Libertinus Mono}[Scale=MatchLowercase]
+
+%------------------------------------------------------------------------------
+% MATHEMATICS AND REFERENCES
+%------------------------------------------------------------------------------
+
+\usepackage[framed=true]{kaotheorems}
+
+% Section-scoped theorem counters need globally unique PDF anchors, one per
+% environment kaotheorems declares. Without this, two chapters that each
+% happen to contain a "Theorem 1" collide on the same internal PDF anchor.
+\providecommand*{\theHtheorem}{}
+\renewcommand*{\theHtheorem}{\thesection.\arabic{theorem}}
+\providecommand*{\theHproposition}{}
+\renewcommand*{\theHproposition}{\thesection.\arabic{proposition}}
+\providecommand*{\theHlemma}{}
+\renewcommand*{\theHlemma}{\thesection.\arabic{lemma}}
+\providecommand*{\theHcorollary}{}
+\renewcommand*{\theHcorollary}{\thesection.\arabic{corollary}}
+\providecommand*{\theHdefinition}{}
+\renewcommand*{\theHdefinition}{\thesection.\arabic{definition}}
+\providecommand*{\theHassumption}{}
+\renewcommand*{\theHassumption}{\thesection.\arabic{assumption}}
+\providecommand*{\theHremark}{}
+\renewcommand*{\theHremark}{\thesection.\arabic{remark}}
+\providecommand*{\theHexample}{}
+\renewcommand*{\theHexample}{\thesection.\arabic{example}}
+\providecommand*{\theHexercise}{}
+\renewcommand*{\theHexercise}{\thesection.\arabic{exercise}}
+
+\usepackage{kaorefs}
+
+\graphicspath{{figures/}}
+
+%------------------------------------------------------------------------------
+% NOTATION SHORTHANDS USED THROUGHOUT THE BOOK
+%------------------------------------------------------------------------------
+
+\newcommand{\vect}[1]{\mathbf{#1}}          % column vector
+\newcommand{\R}{\mathbb{R}}                 % real numbers
+\newcommand{\tp}{^{\mathsf{T}}}             % transpose
+\DeclareMathOperator{\Col}{Col}              % column space
+\DeclareMathOperator{\Null}{Null}            % nullspace
+\newcommand{\E}{\mathbb{E}}                 % expectation
+\newcommand{\Var}{\operatorname{Var}}       % variance
+\newcommand{\Cov}{\operatorname{Cov}}       % covariance
+\newcommand{\Prob}{\operatorname{Pr}}       % probability
+% Bold Greek needs the maths font, not the text font used by \mathbf.
+\newcommand{\vgreek}[1]{\symbf{#1}}
+
+% Chapter-opening provenance line.
+\newcommand{\sources}[1]{%
+	\begingroup\small\itshape\noindent Sources: #1\par\endgroup\medskip}
+
+%------------------------------------------------------------------------------
+% DOCUMENT METADATA
+%------------------------------------------------------------------------------
+
+\begin{document}
+
+\subject{KAN Research Preparation Notes}
+
+\title[Mathematical Foundations for KAN]{Mathematical Foundations for
+Kolmogorov--Arnold Networks}
+\subtitle{A Continuous Study Record}
+
+\author[J Song (Alex)]{J Song (Alex)}
+
+\date{}
+
+% Set after \title so the full title, not the running short title, reaches the
+% PDF metadata.
+\hypersetup{
+	pdftitle={Mathematical Foundations for Kolmogorov-Arnold Networks},
+	pdfauthor={J Song (Alex)},
+	pdfsubject={KAN Research Preparation Notes},
+	pdfkeywords={linear algebra, calculus, probability, deep learning, KAN},
+}
+
+%------------------------------------------------------------------------------
+
+\frontmatter
+
+\maketitle
+
+\begingroup
+\setlength{\textheight}{230\hscale}
+\etocclasstocstyle
+\etocstandardlines
+\tableofcontents
+\endgroup
+
+%------------------------------------------------------------------------------
+
+% The front matter must not push a blank verso page in front of Part I, and no
+% part or chapter opening may insert one either. KOMA forces part pages onto a
+% recto by default; these redefinitions turn that off without changing anything
+% else about the layout.
+\makeatletter
+\let\cleardoublepage\clearpage
+\@ifundefined{cleardoubleoddpage}{}{\let\cleardoubleoddpage\clearpage}
+\@ifundefined{cleardoubleoddstandardpage}{}{\let\cleardoubleoddstandardpage\clearpage}
+\@ifundefined{cleardoublestandardpage}{}{\let\cleardoublestandardpage\clearpage}
+\makeatother
+
+\mainmatter
+\setchapterstyle{kao}
+
+\pagelayout{wide}
+\addpart{Linear Algebra}
+\pagelayout{margin}
+
+\input{chapters/01-vectors-and-column-space.tex}
+\input{chapters/02-elimination.tex}
+\input{chapters/03-four-subspaces.tex}
+\input{chapters/04-orthogonality.tex}
+\input{chapters/05-determinants.tex}
+\input{chapters/06-eigenvalues.tex}
+\input{chapters/07-svd.tex}
+\input{chapters/08-linear-transformations.tex}
+\input{chapters/09-optimization.tex}
+\input{chapters/10-learning-from-data.tex}
+
+\pagelayout{wide}
+\addpart{Calculus for Learning}
+\pagelayout{margin}
+
+\input{chapters/11-derivatives.tex}
+\input{chapters/12-gradients.tex}
+\input{chapters/13-jacobian-hessian.tex}
+\input{chapters/14-gradient-methods.tex}
+
+\pagelayout{wide}
+\addpart{Probability for Learning}
+\pagelayout{margin}
+
+\input{chapters/15-sample-spaces.tex}
+\input{chapters/16-random-variables.tex}
+\input{chapters/17-expectation.tex}
+\input{chapters/18-limit-theorems.tex}
+\input{chapters/19-estimation.tex}
+
+\pagelayout{wide}
+\addpart{Deep Learning Foundations}
+\pagelayout{margin}
+
+\input{chapters/20-learning-problem.tex}
+\input{chapters/21-map-of-learning-problems.tex}
+
+\pagelayout{wide}
+\addpart{Where the Halves Meet}
+\pagelayout{margin}
+
+\input{chapters/22-column-space-to-layers.tex}
+
+%------------------------------------------------------------------------------
+% BIBLIOGRAPHY
+%------------------------------------------------------------------------------
+
+\pagelayout{wide}
+\nocite{*}
+\bibliographystyle{plain}
+\bibliography{references/references}
+\pagelayout{margin}
+
+\end{document}

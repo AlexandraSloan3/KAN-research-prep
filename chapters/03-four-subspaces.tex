@@ -1,0 +1,236 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{The Four Fundamental Subspaces}
+\labch{four-subspaces}
+
+\sources{Strang, \emph{Introduction to Linear Algebra}, 6th ed.\ \cite{strang2023ila},
+§3.1--3.5; MIT 18.06 \cite{ocw1806}, Lectures~6--11.}
+
+Elimination answers a question about one right-hand side. The subspaces in this
+chapter answer the question for all right-hand sides at once, and they do it
+with four numbers: two dimensions in the input space and two in the output
+space.
+
+\section{Vector spaces and subspaces}
+\labsec{subspaces}
+
+\begin{definition}
+A \emph{subspace} of \(\R^{n}\) is a non-empty set \(V\subseteq\R^{n}\) closed
+under addition and scalar multiplication: if \(\vect{u},\vect{v}\in V\) and
+\(c\in\R\) then \(\vect{u}+\vect{v}\in V\) and \(c\vect{v}\in V\).
+\end{definition}
+
+Taking \(c=0\) shows that every subspace contains \(\vect{0}\), which is the
+quickest test to apply first. A plane through the origin in \(\R^{3}\) is a
+subspace; the same plane shifted away from the origin is not, since it fails
+that test.
+
+\marginnote{Closure is the whole content of the definition. It says that the two
+operations the subject is built from cannot carry you out of the set --- which
+is exactly what makes linear questions answerable inside it.}
+
+The subspaces that matter here are not chosen arbitrarily. Each of the four is
+attached to a matrix and describes one aspect of what that matrix does.
+
+\section{The column space}
+\labsec{column-space}
+
+The column space \(\Col(A)\subseteq\R^{m}\) was defined in
+\refch{vectors-and-column-space} as the set of all combinations of the columns.
+It is a subspace because a combination of combinations is again a combination,
+and it settles solvability: \(A\vect{x}=\vect{b}\) has a solution precisely when
+\(\vect{b}\in\Col(A)\).
+
+Throughout this chapter I use
+\[
+	A=\begin{bmatrix}
+		1&2&2&2\\
+		2&4&6&8\\
+		3&6&8&10
+	\end{bmatrix}\in\R^{3\times4}.
+\]
+Its second column is twice its first, so the columns are dependent from the
+start and the column space is smaller than \(\R^{3}\).
+
+\section{The nullspace}
+\labsec{nullspace}
+
+\begin{definition}
+The \emph{nullspace} of \(A\in\R^{m\times n}\) is
+\[
+	\Null(A)=\{\vect{x}\in\R^{n}: A\vect{x}=\vect{0}\}\subseteq\R^{n}.
+\]
+\end{definition}
+
+It is a subspace: if \(A\vect{u}=\vect{0}\) and \(A\vect{v}=\vect{0}\) then
+\(A(\vect{u}+c\vect{v})=\vect{0}\). Unlike the column space it lives in the
+\emph{input} space, and it is exactly the object that \refsec{span-independence}
+showed controls how many solutions a system has.
+
+To compute it, eliminate. Subtracting \(2\times\)row~1 from row~2 and
+\(3\times\)row~1 from row~3, then subtracting the new row~2 from the new row~3,
+\[
+	A\longrightarrow
+	\begin{bmatrix}1&2&2&2\\0&0&2&4\\0&0&2&4\end{bmatrix}
+	\longrightarrow
+	U=\begin{bmatrix}1&2&2&2\\0&0&2&4\\0&0&0&0\end{bmatrix}.
+\]
+
+Two pivots appear, in columns~1 and~3. The row of zeros is not an accident: it
+records that row~3 of \(A\) was the sum of rows~1 and~2 all along.
+
+\begin{definition}
+Columns containing a pivot are \emph{pivot columns}; the rest are \emph{free
+columns}. The unknowns attached to free columns are \emph{free variables},
+because they may be assigned any values whatever, after which the pivot
+variables are determined.
+\end{definition}
+
+Here \(x_2\) and \(x_4\) are free. Setting \(x_2=1,x_4=0\) and back-substituting
+gives \(x_3=0\) and \(x_1=-2\); setting \(x_2=0,x_4=1\) gives \(x_3=-2\) and
+\(x_1=2\). So
+\[
+	\vect{s}_1=\begin{bmatrix}-2\\1\\0\\0\end{bmatrix},
+	\qquad
+	\vect{s}_2=\begin{bmatrix}2\\0\\-2\\1\end{bmatrix},
+	\qquad
+	\Null(A)=\operatorname{span}\{\vect{s}_1,\vect{s}_2\}.
+\]
+
+\marginnote{Check both by hand. \(A\vect{s}_1=-2\vect{a}_1+\vect{a}_2\) and the
+second column is twice the first, so the result is \(\vect{0}\). Similarly
+\(A\vect{s}_2=2\vect{a}_1-2\vect{a}_3+\vect{a}_4=\vect{0}\).}
+
+\section{Rank, echelon form, and \texorpdfstring{\(A=CR\)}{A=CR}}
+\labsec{rank-cr}
+
+\begin{definition}
+The \emph{rank} \(r\) of \(A\) is the number of pivots produced by elimination.
+\end{definition}
+
+For the running example \(r=2\). Continuing elimination until each pivot is~1
+and the entries above it are cleared produces the \emph{reduced row echelon
+form}
+\[
+	R_0=\begin{bmatrix}1&2&0&-2\\0&0&1&2\\0&0&0&0\end{bmatrix}.
+\]
+
+Discarding the zero row leaves \(R\in\R^{2\times4}\), and collecting the pivot
+columns of the original matrix gives
+\[
+	C=\begin{bmatrix}1&2\\2&6\\3&8\end{bmatrix},
+	\qquad
+	R=\begin{bmatrix}1&2&0&-2\\0&0&1&2\end{bmatrix}.
+\]
+
+\begin{theorem}
+Every matrix factors as \(A=CR\), where the \(r\) columns of \(C\) are the pivot
+columns of \(A\) and the \(r\) rows of \(R\) are the non-zero rows of the reduced
+row echelon form.
+\end{theorem}
+
+Multiplying out confirms it here: the first column of \(CR\) is
+\(1\cdot\vect{c}_1=[1,2,3]\tp\), the second is \(2\vect{c}_1=[2,4,6]\tp\), the
+third is \(\vect{c}_2=[2,6,8]\tp\), and the fourth is
+\(-2\vect{c}_1+2\vect{c}_2=[2,8,10]\tp\).
+
+\begin{remark}
+\(A=CR\) is the cleanest statement of what rank means. The columns of \(A\) are
+combinations of \(r\) independent columns, and the rows of \(A\) are
+combinations of \(r\) independent rows --- the \emph{same} \(r\) in both cases.
+Row rank and column rank being equal is often presented as a surprise; here it
+is a consequence of a single factorisation.
+\end{remark}
+
+\section{The complete solution of \texorpdfstring{\(A\vect{x}=\vect{b}\)}{Ax=b}}
+\labsec{complete-solution}
+
+Take \(\vect{b}=[1,6,7]\tp\). Solving with the free variables set to zero gives a
+\emph{particular} solution: the pivot variables must satisfy
+\(x_1\vect{a}_1+x_3\vect{a}_3=\vect{b}\), that is \(x_1+2x_3=1\) and
+\(2x_1+6x_3=6\), whence \(x_3=2\) and \(x_1=-3\); the third equation
+\(3x_1+8x_3=-9+16=7\) is consistent. So
+\[
+	\vect{x}_p=\begin{bmatrix}-3\\0\\2\\0\end{bmatrix},
+	\qquad
+	\vect{x}=\vect{x}_p+c_1\vect{s}_1+c_2\vect{s}_2\ \ \text{for all }c_1,c_2\in\R.
+\]
+
+\begin{proposition}
+If \(A\vect{x}=\vect{b}\) is solvable, its solution set is
+\(\vect{x}_p+\Null(A)\): one particular solution shifted by the whole nullspace.
+\end{proposition}
+
+\begin{proof}
+Any solution \(\vect{x}\) satisfies \(A(\vect{x}-\vect{x}_p)=\vect{b}-\vect{b}
+=\vect{0}\), so \(\vect{x}-\vect{x}_p\in\Null(A)\). Conversely adding any
+nullspace vector to \(\vect{x}_p\) leaves the product unchanged.
+\end{proof}
+
+\marginnote{This is the same statement as the trichotomy in
+\refch{vectors-and-column-space}, now with the geometry supplied: the solution
+set is a shifted copy of a subspace, so it is empty, a single point, or an
+unbounded flat piece.}
+
+\section{Independence, basis, and dimension}
+\labsec{basis-dimension}
+
+\begin{definition}
+A \emph{basis} of a subspace \(V\) is a set of vectors that is linearly
+independent and spans \(V\). The number of vectors in a basis is the
+\emph{dimension} of \(V\), written \(\dim V\).
+\end{definition}
+
+That the number is the same for every basis is the fact that makes dimension
+well defined. For the running example, \(\{\vect{s}_1,\vect{s}_2\}\) is a basis
+of the nullspace and the two pivot columns form a basis of the column space, so
+\[
+	\dim\Col(A)=2,
+	\qquad
+	\dim\Null(A)=2 .
+\]
+
+\section{The four subspaces}
+\labsec{four}
+
+Applying the two constructions to \(A\) and to \(A\tp\) yields four subspaces in
+total.
+
+\begin{description}
+	\item[Column space \(\Col(A)\subseteq\R^{m}\)] spanned by the columns;
+	dimension \(r\).
+	\item[Nullspace \(\Null(A)\subseteq\R^{n}\)] vectors killed by \(A\);
+	dimension \(n-r\).
+	\item[Row space \(\Col(A\tp)\subseteq\R^{n}\)] spanned by the rows;
+	dimension \(r\).
+	\item[Left nullspace \(\Null(A\tp)\subseteq\R^{m}\)] the vectors
+	\(\vect{y}\) satisfying \(A\tp\vect{y}=\vect{0}\); dimension \(m-r\).
+\end{description}
+
+For the running example \(m=3\), \(n=4\), \(r=2\), so the dimensions are
+\(2,2,2,1\). The left nullspace is spanned by \([1,1,-1]\tp\), which encodes the
+dependency noticed during elimination: row~1 plus row~2 equals row~3.
+
+\begin{theorem}[Rank--nullity]
+For \(A\in\R^{m\times n}\) of rank \(r\),
+\[
+	\dim\Col(A)+\dim\Null(A)=r+(n-r)=n .
+\]
+\end{theorem}
+
+\begin{proof}
+Each of the \(n\) columns is either a pivot column or a free column. The pivot
+columns form a basis of \(\Col(A)\), giving \(r\); each free column contributes
+exactly one special solution, and those are independent because each carries a
+\(1\) in a position where the others carry \(0\), giving \(n-r\).
+\end{proof}
+
+\begin{remark}
+The counting has a plain reading. The input space \(\R^{n}\) splits its \(n\)
+degrees of freedom into \(r\) that the matrix records and \(n-r\) that it
+discards. Nothing else can happen, and no amount of cleverness in choosing
+\(\vect{b}\) will change the split.
+\end{remark}
+
+\refch{orthogonality} sharpens this picture considerably: the two subspaces
+inside \(\R^{n}\) are not merely complementary in dimension, they are orthogonal
+complements, and likewise for the two inside \(\R^{m}\).

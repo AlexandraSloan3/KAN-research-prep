@@ -1,0 +1,108 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Sample Spaces, Conditioning, and Bayes}
+\labch{sample-spaces}
+
+\sources{Bertsekas and Tsitsiklis, \emph{Introduction to Probability}, 2nd ed.\
+\cite{bertsekas2008probability}, Chapter~1; MIT 6.041 \cite{ocw6041},
+Lectures~1--4; MIT 18.05 \cite{ocw1805}.}
+
+Part~III covers the probability that a learning problem needs: enough to state
+what a model assumes about its data, and enough to derive the two loss functions
+that dominate practice. It stops at estimation, as agreed.
+
+\section{Sample spaces and the axioms}
+\labsec{axioms}
+
+An experiment is described by a \emph{sample space} \(\Omega\), the set of
+possible outcomes. An \emph{event} is a subset of \(\Omega\). A probability
+measure assigns to each event a number \(\Pr(A)\) subject to three requirements:
+
+\begin{enumerate}
+	\item \(\Pr(A)\ge0\);
+	\item \(\Pr(\Omega)=1\);
+	\item \(\Pr\bigl(\bigcup_i A_i\bigr)=\sum_i\Pr(A_i)\) for disjoint events.
+\end{enumerate}
+
+\marginnote{Everything else is bookkeeping on top of these three lines ---
+including the results in \refch{limit-theorems} that justify learning from
+samples at all.}
+
+Immediate consequences are \(\Pr(A^{c})=1-\Pr(A)\), monotonicity, and the
+inclusion--exclusion formula
+\(\Pr(A\cup B)=\Pr(A)+\Pr(B)-\Pr(A\cap B)\).
+
+\section{Conditional probability}
+\labsec{conditional-probability}
+
+\begin{definition}
+For \(\Pr(B)>0\), the probability of \(A\) given \(B\) is
+\[
+	\Pr(A\mid B)=\frac{\Pr(A\cap B)}{\Pr(B)}.
+\]
+\end{definition}
+
+Conditioning is renormalisation: \(B\) becomes the new sample space, and the
+measure is rescaled so that it again totals one. For fixed \(B\) the map
+\(A\mapsto\Pr(A\mid B)\) satisfies the three axioms, so every result proved for
+probabilities holds for conditional probabilities as well.
+
+Rearranging gives the multiplication rule
+\(\Pr(A\cap B)=\Pr(A\mid B)\Pr(B)\), and chaining it,
+\[
+	\Pr(A_1\cap\cdots\cap A_n)
+	=\Pr(A_1)\Pr(A_2\mid A_1)\cdots\Pr(A_n\mid A_1\cap\cdots\cap A_{n-1}).
+\]
+
+\section{Total probability and Bayes' rule}
+\labsec{bayes}
+
+Let \(B_1,\ldots,B_k\) partition \(\Omega\). Splitting any event along the
+partition gives the \emph{total probability} formula
+\[
+	\Pr(A)=\sum_{i=1}^{k}\Pr(A\mid B_i)\Pr(B_i),
+\]
+and dividing the multiplication rule by it gives \emph{Bayes' rule},
+\begin{equation}
+	\Pr(B_j\mid A)=\frac{\Pr(A\mid B_j)\Pr(B_j)}{\sum_{i}\Pr(A\mid B_i)\Pr(B_i)} .
+	\labeq{bayes}
+\end{equation}
+
+\begin{example}
+A test for a condition present in \(0.1\%\) of a population detects it in
+\(99\%\) of carriers and returns a false positive for \(1\%\) of non-carriers.
+For a positive result,
+\[
+	\Pr(\text{carrier}\mid+)
+	=\frac{0.99\times0.001}{0.99\times0.001+0.01\times0.999}
+	=\frac{0.00099}{0.01098}\approx0.090 .
+\]
+A test that is right \(99\%\) of the time leaves the subject about \(9\%\) likely
+to be a carrier, because the prior is small enough that false positives
+outnumber true ones by roughly ten to one.
+\end{example}
+
+\marginnote{The same arithmetic explains why a classifier with excellent accuracy
+on a rare class can still produce mostly wrong positive predictions. Accuracy and
+precision answer different questions; \refeq{bayes} is the conversion between
+them.}
+
+\section{Independence}
+\labsec{independence}
+
+\begin{definition}
+Events \(A\) and \(B\) are \emph{independent} when
+\(\Pr(A\cap B)=\Pr(A)\Pr(B)\), equivalently \(\Pr(A\mid B)=\Pr(A)\) when
+\(\Pr(B)>0\).
+\end{definition}
+
+Independence is an assumption about the mechanism generating the data, not a
+property that can be read off a formula. It is also fragile: events may be
+pairwise independent without being jointly independent, and independence
+generally fails once one conditions on a third event.
+
+\begin{remark}
+The i.i.d.\ assumption of \refch{learning-problem} is exactly independence
+applied to the examples in a dataset, plus the requirement that they share one
+distribution. Nearly every guarantee in \refch{limit-theorems} rests on it, and
+distribution shift is the name for what happens when the second half fails.
+\end{remark}

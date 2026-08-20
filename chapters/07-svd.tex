@@ -1,0 +1,135 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{The Singular Value Decomposition}
+\labch{svd}
+
+\sources{Strang, \emph{Introduction to Linear Algebra}, 6th ed.\ \cite{strang2023ila},
+§7.1--7.4; MIT 18.06 \cite{ocw1806}, Lecture~31.}
+
+Eigenvalues require a square matrix and may fail to supply a full basis. The
+singular value decomposition has neither restriction: every matrix has one. It
+is the factorisation that ties the four subspaces together and the one that
+underlies most of \refch{learning-from-data}.
+
+\section{The statement}
+\labsec{svd-statement}
+
+\begin{theorem}
+Every \(A\in\R^{m\times n}\) can be written
+\[
+	A=U\Sigma V\tp,
+\]
+where \(U\in\R^{m\times m}\) and \(V\in\R^{n\times n}\) are orthogonal and
+\(\Sigma\in\R^{m\times n}\) is diagonal with entries
+\(\sigma_1\ge\sigma_2\ge\cdots\ge\sigma_r>0\) and zeros elsewhere, \(r\) being
+the rank of \(A\).
+\end{theorem}
+
+The columns \(\vect{v}_j\) are the \emph{right singular vectors}, the columns
+\(\vect{u}_i\) the \emph{left singular vectors}, and the \(\sigma_i\) the
+\emph{singular values}. The content of the factorisation is the pairing
+\[
+	A\vect{v}_i=\sigma_i\vect{u}_i,
+	\qquad i=1,\ldots,r,
+\]
+which says that \(A\) maps one orthonormal set to another, up to individual
+stretching factors.
+
+\marginnote{Compare with eigenvectors, where the same basis appears on both
+sides. Allowing two different bases is exactly what removes the need for \(A\)
+to be square or diagonalisable.}
+
+\section{Where it comes from}
+\labsec{svd-construction}
+
+Suppose \(A=U\Sigma V\tp\). Then
+\[
+	A\tp A=V\Sigma\tp U\tp U\Sigma V\tp=V(\Sigma\tp\Sigma)V\tp,
+	\qquad
+	AA\tp=U(\Sigma\Sigma\tp)U\tp .
+\]
+Both are symmetric and positive semidefinite, so \refsec{spectral} applies. The
+\(\vect{v}_i\) are eigenvectors of \(A\tp A\), the \(\vect{u}_i\) are
+eigenvectors of \(AA\tp\), and the singular values are the square roots of the
+shared non-zero eigenvalues.
+
+\begin{example}
+Let \(A=\begin{bmatrix}3&0\\4&5\end{bmatrix}\). Then
+\(A\tp A=\begin{bmatrix}25&20\\20&25\end{bmatrix}\), with eigenvalues \(45\) and
+\(5\) and eigenvectors \([1,1]\tp\) and \([1,-1]\tp\). Hence
+\(\sigma_1=3\sqrt5\), \(\sigma_2=\sqrt5\), and
+\[
+	\vect{v}_1=\tfrac{1}{\sqrt2}\begin{bmatrix}1\\1\end{bmatrix},
+	\quad
+	\vect{u}_1=\frac{A\vect{v}_1}{\sigma_1}=\tfrac{1}{\sqrt{10}}\begin{bmatrix}1\\3\end{bmatrix},
+	\quad
+	\vect{u}_2=\frac{A\vect{v}_2}{\sigma_2}=\tfrac{1}{\sqrt{10}}\begin{bmatrix}3\\-1\end{bmatrix}.
+\]
+As a check, \(\vect{u}_1\tp\vect{u}_2=0\) and
+\(\sigma_1\sigma_2=3\sqrt5\cdot\sqrt5=15=\det A\).
+\end{example}
+
+\begin{remark}
+In floating point one does not form \(A\tp A\); squaring the matrix squares its
+condition number. The derivation above explains what the singular vectors are;
+production algorithms compute them by orthogonal transformations applied to
+\(A\) directly.
+\end{remark}
+
+\section{The four subspaces, one picture}
+\labsec{svd-subspaces}
+
+Split the singular vectors at index \(r\):
+\[
+	\underbrace{\vect{v}_1,\ldots,\vect{v}_r}_{\text{row space}},\quad
+	\underbrace{\vect{v}_{r+1},\ldots,\vect{v}_n}_{\Null(A)},\qquad
+	\underbrace{\vect{u}_1,\ldots,\vect{u}_r}_{\Col(A)},\quad
+	\underbrace{\vect{u}_{r+1},\ldots,\vect{u}_m}_{\Null(A\tp)} .
+\]
+Each group is an orthonormal basis of the subspace beneath it. The orthogonality
+statements of \refch{orthogonality} are then read off directly, and the action
+of \(A\) becomes: discard the nullspace component, and stretch the surviving
+\(r\) directions by \(\sigma_1,\ldots,\sigma_r\).
+
+\section{Rank-one pieces and best approximation}
+\labsec{eckart-young}
+
+The column-times-row reading of \refsec{four-ways} turns the factorisation into
+a sum ordered by importance:
+\begin{equation}
+	A=\sum_{i=1}^{r}\sigma_i\,\vect{u}_i\vect{v}_i\tp .
+	\labeq{svd-sum}
+\end{equation}
+
+Truncating after \(k\) terms gives \(A_k\), and no other matrix of rank \(k\)
+comes closer.
+
+\begin{theorem}[Eckart--Young]
+Among all matrices \(B\) of rank at most \(k\), the truncation \(A_k\) minimises
+\(\lVert A-B\rVert\) in both the spectral and the Frobenius norm, with
+\(\lVert A-A_k\rVert_2=\sigma_{k+1}\).
+\end{theorem}
+
+\marginnote{This single theorem is the justification for principal component
+analysis, low-rank compression of weight matrices, and latent-factor models
+alike. They differ in what the matrix contains, not in the mathematics applied
+to it.}
+
+\section{The pseudoinverse}
+\labsec{pseudoinverse}
+
+When \(A\) is not invertible, the closest available substitute is
+\[
+	A^{+}=V\Sigma^{+}U\tp,
+\]
+where \(\Sigma^{+}\) transposes \(\Sigma\) and replaces each \(\sigma_i>0\) by
+\(1/\sigma_i\), leaving the zeros alone. Then \(\vect{x}=A^{+}\vect{b}\) is the
+least-squares solution of smallest length: among all vectors minimising
+\(\lVert A\vect{x}-\vect{b}\rVert\), it is the one lying entirely in the row
+space.
+
+\begin{remark}
+This closes a loop opened in \refch{orthogonality}. There the normal equations
+needed independent columns so that \(A\tp A\) could be inverted. The
+pseudoinverse removes that condition and picks a canonical answer from the
+infinitely many that rank deficiency allows.
+\end{remark}

@@ -1,0 +1,139 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Gradient-Based Optimisation}
+\labch{gradient-methods}
+
+\sources{Hass, Heil and Weir, \emph{Thomas' Calculus}, 14th ed.\ \cite{thomas2018calculus},
+Chapter~14; Strang, \emph{Introduction to Linear Algebra}, 6th ed.\
+\cite{strang2023ila}, Chapter~9; Zhang, Lipton, Li and Smola,
+\emph{Dive into Deep Learning} \cite{d2l2023}, Chapters~11--12.}
+
+This chapter closes Part~II by combining the two halves already assembled: the
+gradient says which way to move, and the Hessian says how far the move can be
+trusted.
+
+\section{Descent directions and the basic method}
+\labsec{descent}
+
+By \refsec{steepest}, \(-\nabla f\) is the direction along which \(f\) falls
+fastest, so the simplest possible method is
+\begin{equation}
+	\vect{x}_{k+1}=\vect{x}_k-\alpha\,\nabla f(\vect{x}_k),
+	\labeq{gd}
+\end{equation}
+with step size \(\alpha>0\). Everything interesting is in the choice of
+\(\alpha\), and \refeq{taylor2} explains why: the linear model that justified the
+direction is only accurate while the quadratic term stays small.
+
+\section{The quadratic case, exactly}
+\labsec{gd-quadratic}
+
+Take \(f(\vect{x})=\tfrac12\vect{x}\tp A\vect{x}-\vect{b}\tp\vect{x}\) with \(A\)
+symmetric positive definite, whose minimiser \(\vect{x}^{\star}\) solves
+\(A\vect{x}=\vect{b}\) by \refsec{quadratic-forms}. Since
+\(\nabla f(\vect{x})=A\vect{x}-\vect{b}=A(\vect{x}-\vect{x}^{\star})\), the error
+\(\vect{e}_k=\vect{x}_k-\vect{x}^{\star}\) obeys
+\[
+	\vect{e}_{k+1}=(I-\alpha A)\,\vect{e}_k .
+\]
+
+Diagonalising \(A=Q\Lambda Q\tp\) decouples the coordinates: along the
+eigenvector \(\vect{q}_i\) the error is multiplied by \(1-\alpha\lambda_i\) at
+every step.
+
+\begin{theorem}
+Gradient descent on this quadratic converges for every starting point if and
+only if \(0<\alpha<2/\lambda_{\max}\). The best rate is obtained at
+\(\alpha^{\star}=2/(\lambda_{\min}+\lambda_{\max})\), where the error contracts
+by a factor
+\[
+	\frac{\kappa-1}{\kappa+1},
+	\qquad
+	\kappa=\frac{\lambda_{\max}}{\lambda_{\min}},
+\]
+per step.
+\end{theorem}
+
+\marginnote{With \(\kappa=100\) the factor is \(0.980\); reducing the error by
+\(10^{-3}\) then takes about \(340\) steps. Conditioning, introduced in
+\refsec{conditioning} as a numerical concern, is here a direct statement about
+training time.}
+
+\begin{remark}
+The geometry is the elongated ellipse of \refsec{quadratic-forms}. The negative
+gradient points across the valley rather than along it, so the iterates zigzag.
+Nothing about this depends on the objective being artificial --- an
+ill-conditioned Hessian produces the same behaviour for any smooth loss.
+\end{remark}
+
+\section{Momentum and adaptive steps}
+\labsec{momentum}
+
+Momentum averages successive gradients,
+\[
+	\vect{v}_{k+1}=\beta\vect{v}_k+\nabla f(\vect{x}_k),
+	\qquad
+	\vect{x}_{k+1}=\vect{x}_k-\alpha\vect{v}_{k+1},
+\]
+which cancels the alternating components of the zigzag while accumulating the
+consistent ones. Adaptive methods instead rescale each coordinate by a running
+measure of its own gradient magnitude, which amounts to approximating the
+diagonal of the Hessian on the fly.
+
+\begin{remark}
+Both are attempts to reduce the effective condition number without forming
+second derivatives. Neither changes the fact, established above, that the
+condition number is what has to be reduced.
+\end{remark}
+
+\section{Newton's method}
+\labsec{newton}
+
+Minimising the quadratic model \refeq{taylor2} exactly, rather than following its
+linear part, gives
+\[
+	\vect{x}_{k+1}=\vect{x}_k-H(\vect{x}_k)^{-1}\nabla f(\vect{x}_k).
+\]
+On a quadratic objective this reaches the minimum in a single step, and near a
+non-degenerate minimum it converges quadratically. The obstacle is cost: forming
+and factorising \(H\) is \(O(n^{3})\) work in \(n\) parameters, which is
+unavailable when \(n\) is in the millions. Quasi-Newton methods maintain a
+cheap approximation instead.
+
+\section{Stochastic gradients}
+\labsec{sgd}
+
+Training losses are sums over examples,
+\(f(\vect{x})=\frac1n\sum_{i=1}^{n}\ell_i(\vect{x})\). Evaluating the full
+gradient costs one pass over the data; evaluating it on a random mini-batch
+costs a fraction of that and gives an unbiased estimate, since the expectation of
+the batch gradient is the full gradient.
+
+\begin{remark}
+The trade is variance for speed. Because the estimate is noisy, a constant step
+size leaves the iterates bouncing near the optimum rather than settling, which is
+why step sizes are decayed. The unbiasedness claim itself belongs to
+\refch{expectation}.
+\end{remark}
+
+\section{Backpropagation}
+\labsec{backprop}
+
+For a composition \(f=f_L\circ\cdots\circ f_1\) with a scalar output, the chain
+rule of \refsec{matrix-chain-rule} gives
+\[
+	\nabla f=J_1\tp J_2\tp\cdots J_L\tp\,,
+\]
+a product that may be evaluated in either order. Multiplying from the left
+(inputs first) propagates full Jacobians, each of size (layer width) squared.
+Multiplying from the right (output first) propagates a single vector at every
+stage, because the output is scalar.
+
+Backpropagation is that second ordering, nothing more: a forward pass storing
+the intermediate values, then a backward pass carrying one vector through the
+transposed Jacobians. Its cost is a small constant multiple of the forward pass,
+independent of the number of parameters, and that asymptotic fact is what makes
+training large models possible at all.
+
+\marginnote{The name suggests a special algorithm. It is better understood as a
+choice of association order in a matrix product --- the choice that keeps every
+intermediate object as small as the output rather than as large as the layer.}

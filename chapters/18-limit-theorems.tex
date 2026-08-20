@@ -1,0 +1,101 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Limit Theorems}
+\labch{limit-theorems}
+
+\sources{Bertsekas and Tsitsiklis, \emph{Introduction to Probability}, 2nd ed.\
+\cite{bertsekas2008probability}, Chapter~5; MIT 6.041 \cite{ocw6041},
+Lectures~19--20.}
+
+Two theorems justify the entire practice of learning from a sample: averages
+converge to what they estimate, and the error of the average has a predictable
+shape and size.
+
+\section{Two inequalities}
+\labsec{inequalities}
+
+\begin{proposition}[Markov]
+If \(X\ge0\) and \(a>0\) then \(\Prob(X\ge a)\le\E[X]/a\).
+\end{proposition}
+
+\begin{proof}
+\(\E[X]\ge\E[X\cdot\mathbf{1}\{X\ge a\}]\ge a\,\Prob(X\ge a)\), using
+non-negativity in the first step.
+\end{proof}
+
+\begin{proposition}[Chebyshev]
+If \(\E[X]=\mu\) and \(\Var(X)=\sigma^{2}\) then for \(a>0\),
+\[
+	\Prob\bigl(|X-\mu|\ge a\bigr)\le\frac{\sigma^{2}}{a^{2}}.
+\]
+\end{proposition}
+
+\begin{proof}
+Apply Markov to the non-negative variable \((X-\mu)^{2}\) with threshold
+\(a^{2}\).
+\end{proof}
+
+\marginnote{These bounds are crude --- they use only two moments --- but they
+hold for every distribution, which is exactly what is wanted when the
+distribution is unknown.}
+
+\section{The law of large numbers}
+\labsec{lln}
+
+\begin{theorem}[Weak law]
+Let \(X_1,X_2,\ldots\) be i.i.d.\ with mean \(\mu\) and finite variance
+\(\sigma^{2}\). Then for every \(\varepsilon>0\),
+\[
+	\Prob\bigl(|\bar X_n-\mu|\ge\varepsilon\bigr)\longrightarrow0
+	\qquad\text{as }n\to\infty .
+\]
+\end{theorem}
+
+\begin{proof}
+By \refsec{variance}, \(\Var(\bar X_n)=\sigma^{2}/n\). Chebyshev gives
+\[
+	\Prob\bigl(|\bar X_n-\mu|\ge\varepsilon\bigr)\le\frac{\sigma^{2}}{n\varepsilon^{2}},
+\]
+which tends to zero.
+\end{proof}
+
+\begin{remark}
+Training loss is an average over the sample, and test loss is an average over a
+different sample from the same distribution. The law is what allows either to
+stand in for the expected loss --- and its reliance on the i.i.d.\ hypothesis is
+what makes distribution shift so damaging.
+\end{remark}
+
+\section{The central limit theorem}
+\labsec{clt}
+
+\begin{theorem}
+With the same hypotheses and \(\sigma^{2}>0\),
+\[
+	\frac{\bar X_n-\mu}{\sigma/\sqrt n}
+	\ \xrightarrow{\ d\ }\ \text{Gaussian}(0,1).
+\]
+\end{theorem}
+
+The law of large numbers says the error vanishes; the central limit theorem says
+it vanishes at rate \(1/\sqrt n\) and that the rescaled error is Gaussian
+regardless of the distribution the samples came from.
+
+\marginnote{This is the honest reason Gaussian noise is assumed so often. It is
+not that measurements are Gaussian by nature, but that an accumulation of many
+small independent contributions is approximately so.}
+
+\begin{example}
+Estimating an accuracy \(p\) from \(n\) independent test examples gives
+\(\Var(\bar X_n)=p(1-p)/n\). With \(p\approx0.9\) and \(n=1000\), the standard
+deviation is about \(0.0095\), so two systems differing by half a percentage
+point on such a test set are not distinguishable by that test set alone.
+\end{example}
+
+\section{What the theorems do not say}
+\labsec{limit-caveats}
+
+Both require independence and identical distribution, and the central limit
+theorem additionally requires finite variance. Heavy-tailed quantities can
+violate the last condition, and time-ordered data routinely violate the first.
+Where the hypotheses fail, the conclusions are not merely weaker --- they can be
+false, and the confidence intervals built on them are then decorative.

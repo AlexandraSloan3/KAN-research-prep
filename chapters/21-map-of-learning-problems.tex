@@ -1,0 +1,149 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{A Map of Learning Problems}
+\labch{map-of-learning-problems}
+
+\sources{Zhang, Lipton, Li and Smola, \emph{Dive into Deep Learning}
+\cite{d2l2023}, Chapter~1.}
+
+With the four components of \refch{learning-problem} in place, the standard
+catalogue of problem types can be laid out as variations on them: what the data
+contain, what is being predicted, and whether the learner influences what it
+sees next.
+
+\section{Supervised learning}
+\labsec{supervised}
+
+Every example carries a label, and the goal is to model the conditional
+distribution of the label given the features --- the object \(f_{Y\mid X}\) of
+\refsec{joint}.
+
+\subsection{Regression}
+\labsubsec{regression}
+
+The label is a real number and the natural loss is squared error, so by
+\refsec{conditional-expectation} the fitted function approximates
+\(\E[Y\mid X]\). Everything in \refch{orthogonality} applies verbatim when the
+model is linear.
+
+\subsection{Classification}
+\labsubsec{classification}
+
+The label is one of finitely many \emph{categories} or \emph{classes}. Two
+classes make it binary classification; more make it multiclass. The output is a
+probability vector, and the loss is cross-entropy, which
+\refsec{losses-from-likelihood} derives rather than assumes.
+
+\emph{Hierarchical} classification exploits structure among the classes so that
+confusing two neighbouring categories is penalised less than confusing two
+distant ones. \emph{Multi-label} classification drops the assumption that the
+categories are mutually exclusive, and models each label with its own Bernoulli
+output.
+
+\marginnote{Accuracy is a poor summary when classes are unbalanced, for the
+reason computed in \refsec{bayes}: with a rare positive class, most positive
+predictions can be wrong even at very high accuracy.}
+
+\subsection{Search and ranking}
+\labsubsec{ranking}
+
+The output is an ordering of a candidate set rather than a single value, and
+quality depends on which items appear near the top. Losses here are built to
+approximate rank-based measures, which are themselves not differentiable --- an
+instance of the surrogate problem noted in \refsubsec{objective}.
+
+\subsection{Recommender systems}
+\labsubsec{recommenders}
+
+Predict a user's response to an item from a sparse, partially observed matrix of
+past interactions. The classical treatment is a low-rank factorisation of that
+matrix, which is \refsec{low-rank} applied to a table of ratings.
+
+\begin{remark}
+Recommendation is the clearest case in which the fitted system changes the data
+it will later be trained on: what is recommended is what gets seen, and what
+gets seen is what gets recorded. Censoring, incentives, and feedback loops are
+open research problems, not solved engineering details.
+\end{remark}
+
+\subsection{Sequence learning}
+\labsubsec{sequences}
+
+Input and output are sequences whose lengths need not match. Tagging and parsing
+attach structure to each position; automatic speech recognition maps audio to
+text; text-to-speech maps text to audio; machine translation maps a sequence in
+one language to another, generally of different length and different word order.
+
+\section{Unsupervised learning}
+\labsec{unsupervised}
+
+No labels are supplied, and the goal is to describe the structure of the data
+itself.
+
+\begin{description}
+	\item[Clustering] group examples so that members of a group resemble each
+	other more than they resemble members of other groups.
+	\item[Principal component analysis] find the few directions along which the
+	data vary most --- exactly \refsec{pca}.
+	\item[Causality and probabilistic graphical models] describe which variables
+	influence which, rather than merely which co-vary.
+	\item[Generative adversarial networks] fit a mechanism that produces samples
+	resembling the data, by training a generator against a discriminator.
+\end{description}
+
+\marginnote{Only the second of these is fully settled by linear algebra.
+Correlation is what a covariance matrix records, and \refsec{covariance-def}
+notes that it detects linear association only --- causal structure is not
+recoverable from it without further assumptions.}
+
+\section{Interacting with an environment}
+\labsec{environment}
+
+The problems above are \emph{offline}: a fixed dataset is collected first, the
+model is fitted second, and the model never influences what it is shown. This is
+convenient and often unrealistic.
+
+\begin{definition}
+\emph{Distribution shift} occurs when the distribution generating the data at
+deployment differs from the one that generated the training data.
+\end{definition}
+
+Since \refsec{lln} is what licensed the transfer from sample to population, and
+it assumes a single fixed distribution, shift is not a small perturbation of the
+theory --- it removes the hypothesis the theory rests on.
+
+\section{Reinforcement learning}
+\labsec{reinforcement}
+
+Here the learner is an \emph{agent} placed in a loop with an environment. At
+each step it receives an \emph{observation}, chooses an \emph{action} according
+to its \emph{policy}, and receives a \emph{reward}; the action influences what is
+observed next.
+
+Two difficulties distinguish this from supervised learning. The reward may
+arrive long after the action responsible for it, so the agent faces the
+\emph{credit assignment} problem. And the agent must balance exploiting what it
+already believes to be good against exploring alternatives it has not tried.
+
+\begin{description}
+	\item[Markov decision process] the standard model, in which the next state
+	depends only on the present state and the chosen action.
+	\item[Multi-armed bandit] the one-state case, in which the agent chooses
+	repeatedly among fixed options with unknown rewards.
+	\item[Contextual bandit] a bandit in which an observation is supplied before
+	each choice, but actions still do not affect future states.
+\end{description}
+
+\marginnote{The bandit cases are where the estimation machinery of
+\refch{estimation} applies most directly: each arm's value is a mean to be
+estimated, and the exploration problem is about how confident those estimates
+are.}
+
+\section{Terminology carried forward}
+\labsec{terminology}
+
+A last group of words appears throughout the literature and is worth fixing
+before Part~V: \emph{estimation}; \emph{neural network}; \emph{layer};
+\emph{kernel method}; \emph{decision tree}; \emph{graphical model}; and
+\emph{representation learning} --- the idea that the useful features should be
+learned along with the predictor rather than designed in advance. That last term
+is the one \refch{column-space-to-layers} takes up.

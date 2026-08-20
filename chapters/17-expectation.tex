@@ -1,0 +1,158 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Expectation, Variance, and Covariance}
+\labch{expectation}
+
+\sources{Bertsekas and Tsitsiklis, \emph{Introduction to Probability}, 2nd ed.\
+\cite{bertsekas2008probability}, Chapters~2--4; MIT 6.041 \cite{ocw6041},
+Lectures~5--12.}
+
+Distributions are unwieldy objects. Expectation reduces one to a single number,
+variance to a second, and covariance extends the idea to pairs --- producing, in
+the end, the covariance matrix already met in \refch{learning-from-data}.
+
+\section{Expectation}
+\labsec{expectation-def}
+
+\begin{definition}
+The \emph{expectation} of \(X\) is
+\[
+	\E[X]=\sum_x x\,p_X(x)
+	\qquad\text{or}\qquad
+	\E[X]=\int x\,f_X(x)\,dx,
+\]
+according as \(X\) is discrete or continuous, when the sum or integral converges
+absolutely.
+\end{definition}
+
+\begin{theorem}[Linearity]
+For random variables \(X,Y\) on the same space and constants \(a,b\),
+\[
+	\E[aX+bY]=a\E[X]+b\E[Y].
+\]
+No independence is required.
+\end{theorem}
+
+\marginnote{Linearity without independence is the workhorse of the subject. It is
+what makes the mini-batch gradient of \refsec{sgd} unbiased even though the
+examples in a batch share a model and a step.}
+
+\section{Expectations of functions}
+\labsec{lotus}
+
+The expectation of \(g(X)\) needs no new distribution:
+\[
+	\E[g(X)]=\sum_x g(x)p_X(x)
+	\qquad\text{or}\qquad
+	\E[g(X)]=\int g(x)f_X(x)\,dx .
+\]
+Contrast \refsec{transformations}: obtaining the \emph{density} of \(g(X)\)
+requires a Jacobian factor, obtaining its \emph{expectation} does not.
+
+\begin{remark}
+Except for affine \(g\), \(\E[g(X)]\neq g(\E[X])\). For convex \(g\) the
+inequality has a direction --- Jensen's inequality gives
+\(\E[g(X)]\ge g(\E[X])\) --- which is why an average of losses is not the loss of
+an average.
+\end{remark}
+
+\section{Variance}
+\labsec{variance}
+
+\begin{definition}
+\(\Var(X)=\E\bigl[(X-\E[X])^{2}\bigr]\), and the standard deviation is its
+square root.
+\end{definition}
+
+Expanding the square gives the computational form
+\(\Var(X)=\E[X^{2}]-\E[X]^{2}\), and scaling behaves quadratically:
+\(\Var(aX+b)=a^{2}\Var(X)\). For \emph{independent} \(X\) and \(Y\),
+\(\Var(X+Y)=\Var(X)+\Var(Y)\).
+
+\begin{example}
+For \(X\sim\)~Bernoulli\((p)\), \(\E[X]=p\) and \(\E[X^{2}]=p\), so
+\(\Var(X)=p-p^{2}=p(1-p)\), largest at \(p=\tfrac12\) and zero at the extremes.
+\end{example}
+
+\begin{proposition}
+If \(X_1,\ldots,X_n\) are i.i.d.\ with mean \(\mu\) and variance
+\(\sigma^{2}\), the sample mean \(\bar X_n=\frac1n\sum_iX_i\) satisfies
+\[
+	\E[\bar X_n]=\mu,
+	\qquad
+	\Var(\bar X_n)=\frac{\sigma^{2}}{n}.
+\]
+\end{proposition}
+
+\marginnote{The \(1/n\) --- and therefore the \(1/\sqrt n\) in the standard
+deviation --- is the reason quadrupling a batch halves the gradient noise, and
+the reason the returns diminish so quickly.}
+
+\section{Covariance and correlation}
+\labsec{covariance-def}
+
+\begin{definition}
+\(\Cov(X,Y)=\E\bigl[(X-\E[X])(Y-\E[Y])\bigr]\), and the correlation is
+\(\rho=\Cov(X,Y)/\sqrt{\Var(X)\Var(Y)}\in[-1,1]\).
+\end{definition}
+
+Independence implies zero covariance; the converse is false. A standard
+counterexample is \(X\) symmetric about zero with \(Y=X^{2}\): the two are
+completely dependent, yet \(\Cov(X,Y)=\E[X^{3}]=0\).
+
+\begin{remark}
+Covariance detects linear association only. Since it is exactly what principal
+component analysis in \refsec{pca} consumes, that method sees linear structure
+and nothing else --- a limitation of the tool, not of the data.
+\end{remark}
+
+\section{The covariance matrix}
+\labsec{covariance-matrix}
+
+For a random vector \(\vect{X}\in\R^{d}\) with mean \(\vgreek{\mu}\),
+\[
+	\Sigma=\E\bigl[(\vect{X}-\vgreek{\mu})(\vect{X}-\vgreek{\mu})\tp\bigr]\in\R^{d\times d}.
+\]
+
+\begin{proposition}
+\(\Sigma\) is symmetric positive semidefinite, and for any fixed
+\(\vect{a}\in\R^{d}\),
+\[
+	\Var(\vect{a}\tp\vect{X})=\vect{a}\tp\Sigma\vect{a}.
+\]
+\end{proposition}
+
+\begin{proof}
+Symmetry is immediate from the definition. For the second claim, expand
+\(\Var(\vect{a}\tp\vect{X})
+=\E\bigl[(\vect{a}\tp(\vect{X}-\vgreek{\mu}))^{2}\bigr]
+=\vect{a}\tp\E[(\vect{X}-\vgreek{\mu})(\vect{X}-\vgreek{\mu})\tp]\vect{a}\).
+Since a variance is non-negative, the quadratic form is non-negative for every
+\(\vect{a}\), which is positive semidefiniteness.
+\end{proof}
+
+\marginnote{So the population covariance matrix and the sample covariance matrix
+\(S\) of \refsec{covariance} are the same object, one exact and one estimated.
+The spectral theorem applies to both, which is what principal components rely
+on.}
+
+\section{Conditional expectation}
+\labsec{conditional-expectation}
+
+\(\E[Y\mid X=x]\) is the mean of the conditional distribution, and
+\(\E[Y\mid X]\) is the random variable taking that value when \(X=x\). The tower
+property states
+\[
+	\E\bigl[\E[Y\mid X]\bigr]=\E[Y].
+\]
+
+\begin{proposition}
+Among all functions \(g\), the one minimising \(\E\bigl[(Y-g(X))^{2}\bigr]\) is
+\(g(X)=\E[Y\mid X]\).
+\end{proposition}
+
+\begin{remark}
+This identifies what a regression model trained on squared error is trying to
+be: the conditional mean of the target given the input. Everything the model
+gets wrong is either approximation error --- the family cannot express that
+conditional mean --- or estimation error from finite data.
+\end{remark}

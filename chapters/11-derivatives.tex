@@ -1,0 +1,127 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Derivatives and the Chain Rule}
+\labch{derivatives}
+
+\sources{Hass, Heil and Weir, \emph{Thomas' Calculus}, 14th ed.\ \cite{thomas2018calculus},
+Chapters~2--3; MIT 18.01 \cite{ocw1801}.}
+
+Part~II covers only the calculus that optimisation needs. That means
+differentiation, and in particular the chain rule, which is the entire
+mathematical content of training a network by gradients. Integration appears
+only where \refch{expectation} needs it.
+
+\section{The derivative as a local linear approximation}
+\labsec{derivative-definition}
+
+\begin{definition}
+For \(f:\R\to\R\), the derivative at \(a\) is
+\[
+	f'(a)=\lim_{h\to0}\frac{f(a+h)-f(a)}{h},
+\]
+when the limit exists.
+\end{definition}
+
+The definition is a statement about approximation. Rearranged, it says
+\[
+	f(a+h)=f(a)+f'(a)h+o(h),
+\]
+where the remainder shrinks faster than \(h\). In words: near \(a\), the function
+is the straight line \(f(a)+f'(a)h\), plus an error too small to matter at first
+order.
+
+\marginnote{This reading is the one that generalises. In \refch{gradients} the
+straight line becomes a plane and \(f'(a)\) becomes a vector; in
+\refch{jacobian-hessian} the plane becomes an affine map and the vector becomes
+a matrix. The idea never changes.}
+
+Differentiability implies continuity, but not conversely: \(f(x)=|x|\) is
+continuous at \(0\) and has no derivative there, because the one-sided limits
+disagree. This matters in practice, since the rectified linear unit
+\(\max(0,x)\) has exactly this kink and is handled by convention rather than by
+theorem.
+
+\section{The rules}
+\labsec{diff-rules}
+
+For differentiable \(f\) and \(g\),
+\[
+	(f+g)'=f'+g',
+	\qquad
+	(fg)'=f'g+fg',
+	\qquad
+	\Bigl(\frac{f}{g}\Bigr)'=\frac{f'g-fg'}{g^{2}},
+\]
+together with \((x^{n})'=nx^{n-1}\), \((e^{x})'=e^{x}\), and
+\((\ln x)'=1/x\) for \(x>0\).
+
+\begin{example}
+The logistic function \(\sigma(z)=\dfrac{1}{1+e^{-z}}\) satisfies
+\[
+	\sigma'(z)=\frac{e^{-z}}{(1+e^{-z})^{2}}=\sigma(z)\bigl(1-\sigma(z)\bigr).
+\]
+The derivative is expressible in terms of the value itself, which is why
+implementations cache \(\sigma(z)\) during the forward pass and reuse it going
+backwards.
+\end{example}
+
+\section{The chain rule}
+\labsec{chain-rule}
+
+\begin{theorem}
+If \(g\) is differentiable at \(a\) and \(f\) is differentiable at \(g(a)\), then
+\(f\circ g\) is differentiable at \(a\) and
+\[
+	(f\circ g)'(a)=f'\bigl(g(a)\bigr)\,g'(a).
+\]
+\end{theorem}
+
+The linear-approximation reading makes the statement almost obvious: \(g\)
+multiplies a small input change by \(g'(a)\), then \(f\) multiplies the result by
+\(f'(g(a))\), so the composed effect is the product of the two factors.
+
+\begin{example}
+For \(f(x)=\sigma(wx+b)\) with \(w,b\) fixed,
+\(f'(x)=\sigma'(wx+b)\cdot w\). Differentiating instead with respect to the
+\emph{parameter} \(w\) gives \(\sigma'(wx+b)\cdot x\). Same rule, different
+variable held fixed --- and it is the second version that training uses.
+\end{example}
+
+\marginnote{Almost every gradient in a neural network is this calculation
+repeated. What makes networks distinctive is not the rule but the number of
+times it is applied and the care taken over the order of the arithmetic.}
+
+\section{Long compositions}
+\labsec{long-compositions}
+
+A network of \(L\) layers is a composition
+\(f=f_L\circ f_{L-1}\circ\cdots\circ f_1\), and the chain rule gives
+\[
+	f'(x)=f_L'\bigl(z_{L-1}\bigr)\cdot f_{L-1}'\bigl(z_{L-2}\bigr)\cdots f_1'(x),
+\]
+where \(z_k\) is the output of layer \(k\). Two consequences deserve naming even
+in the scalar case.
+
+First, the derivative is a \emph{product} of \(L\) factors. If the factors are
+systematically smaller than one the product decays geometrically; if
+systematically larger it explodes. This is the vanishing and exploding gradient
+problem, visible here with no matrices involved.
+
+Second, the intermediate values \(z_k\) are needed to evaluate the factors. They
+are computed on the way forward and must be kept, which is why memory during
+training scales with depth.
+
+\begin{remark}
+Multiplication is associative but not equally cheap in every order. Accumulating
+the product from the output end backwards keeps every intermediate quantity the
+same shape as the output; accumulating from the input end does not.
+\refsec{backprop} makes this precise once the objects are matrices.
+\end{remark}
+
+\section{What is not covered}
+\labsec{calculus-scope}
+
+Techniques of integration, infinite series, and differential equations are
+outside the scope agreed for these notes. Definite integrals appear in
+\refch{expectation} only to the extent that expectations of continuous random
+variables require them, and the fundamental theorem of calculus is used there
+without a separate development.

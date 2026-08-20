@@ -1,0 +1,144 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Partial Derivatives and Gradients}
+\labch{gradients}
+
+\sources{Hass, Heil and Weir, \emph{Thomas' Calculus}, 14th ed.\ \cite{thomas2018calculus},
+Chapter~14; MIT 18.02 \cite{ocw1801}.}
+
+A loss depends on many parameters at once, so the derivative has to become a
+vector. This chapter builds that vector and computes it for the handful of
+expressions that account for most of what appears in practice.
+
+\section{Partial derivatives}
+\labsec{partials}
+
+For \(f:\R^{n}\to\R\), the partial derivative \(\partial f/\partial x_i\) is the
+ordinary derivative with respect to \(x_i\) with the other coordinates held
+fixed. Nothing new is required to compute one; the novelty is in assembling
+them.
+
+\begin{definition}
+The \emph{gradient} of \(f\) at \(\vect{x}\) is the column vector
+\[
+	\nabla f(\vect{x})
+	=\begin{bmatrix}
+		\partial f/\partial x_1\\ \vdots\\ \partial f/\partial x_n
+	\end{bmatrix}.
+\]
+\end{definition}
+
+The first-order approximation of \refsec{derivative-definition} becomes
+\begin{equation}
+	f(\vect{x}+\vect{h})=f(\vect{x})+\nabla f(\vect{x})\tp\vect{h}+o(\lVert\vect{h}\rVert),
+	\labeq{first-order}
+\end{equation}
+so the gradient is the vector whose inner product with a displacement predicts
+the change in \(f\).
+
+\section{Direction of steepest ascent}
+\labsec{steepest}
+
+\begin{proposition}
+Among unit vectors \(\vect{u}\), the directional derivative
+\[
+	\nabla f(\vect{x})\tp\vect{u}
+\]
+is largest when \(\vect{u}\) points along \(\nabla f(\vect{x})\), and its value
+there is \(\lVert\nabla f(\vect{x})\rVert\).
+\end{proposition}
+
+\begin{proof}
+By the Cauchy--Schwarz inequality,
+\(|\nabla f\tp\vect{u}|\le\lVert\nabla f\rVert\lVert\vect{u}\rVert
+=\lVert\nabla f\rVert\), with equality exactly when \(\vect{u}\) is parallel to
+\(\nabla f\).
+\end{proof}
+
+\marginnote{Hence \(-\nabla f\) is the direction of steepest \emph{descent}. That
+single sentence is the justification for every method in
+\refch{gradient-methods}.}
+
+A related fact is that the gradient is perpendicular to the level set through
+\(\vect{x}\): moving along a level set does not change \(f\), so the inner
+product in \refeq{first-order} must vanish for such displacements.
+
+\section{Gradients of the expressions that matter}
+\labsec{matrix-gradients}
+
+Three formulas cover most cases encountered in this book. Throughout,
+\(\vect{a}\) is a fixed vector and \(A\) a fixed matrix.
+
+\begin{proposition}
+\begin{align*}
+	\nabla\bigl(\vect{a}\tp\vect{x}\bigr)&=\vect{a},\\
+	\nabla\bigl(\vect{x}\tp A\vect{x}\bigr)&=(A+A\tp)\vect{x},\\
+	\nabla\Bigl(\tfrac12\lVert A\vect{x}-\vect{b}\rVert^{2}\Bigr)
+		&=A\tp(A\vect{x}-\vect{b}).
+\end{align*}
+In particular the middle formula is \(2A\vect{x}\) when \(A\) is symmetric.
+\end{proposition}
+
+\begin{proof}[Third formula]
+Write \(f(\vect{x})=\tfrac12(A\vect{x}-\vect{b})\tp(A\vect{x}-\vect{b})\) and
+expand at \(\vect{x}+\vect{h}\):
+\[
+	f(\vect{x}+\vect{h})=f(\vect{x})
+	+(A\vect{x}-\vect{b})\tp A\vect{h}
+	+\tfrac12\lVert A\vect{h}\rVert^{2}.
+\]
+The middle term is \(\bigl(A\tp(A\vect{x}-\vect{b})\bigr)\tp\vect{h}\) and the
+last is \(O(\lVert\vect{h}\rVert^{2})\); comparing with \refeq{first-order}
+identifies the gradient.
+\end{proof}
+
+\begin{remark}
+Setting the third gradient to zero gives \(A\tp A\vect{x}=A\tp\vect{b}\) --- the
+normal equations of \refeq{normal-equations}. The geometric derivation in
+\refch{orthogonality} and the calculus derivation here produce the same
+equations, as they must.
+\end{remark}
+
+\section{A worked parameter gradient}
+\labsec{worked-gradient}
+
+Take one logistic unit with squared loss on a single example \((\vect{x},y)\):
+\[
+	z=\vect{w}\tp\vect{x}+b,
+	\qquad
+	\hat y=\sigma(z),
+	\qquad
+	\ell=\tfrac12(\hat y-y)^{2}.
+\]
+Working outwards from the loss,
+\[
+	\frac{\partial\ell}{\partial\hat y}=\hat y-y,
+	\qquad
+	\frac{\partial\hat y}{\partial z}=\hat y(1-\hat y),
+	\qquad
+	\frac{\partial z}{\partial\vect{w}}=\vect{x},
+\]
+so that
+\[
+	\nabla_{\vect{w}}\ell=(\hat y-y)\,\hat y(1-\hat y)\,\vect{x},
+	\qquad
+	\frac{\partial\ell}{\partial b}=(\hat y-y)\,\hat y(1-\hat y).
+\]
+
+\marginnote{Note the factor \(\hat y(1-\hat y)\), which is near zero whenever the
+unit is confidently right or confidently wrong. Squared loss on a saturating
+unit therefore learns slowly from its worst mistakes --- one of the reasons
+cross-entropy is preferred, as \refch{estimation} explains.}
+
+\section{Convexity in one line}
+\labsec{convexity}
+
+A differentiable \(f\) is \emph{convex} when
+\[
+	f(\vect{y})\ge f(\vect{x})+\nabla f(\vect{x})\tp(\vect{y}-\vect{x})
+	\qquad\text{for all }\vect{x},\vect{y},
+\]
+that is, when the first-order approximation never overestimates. For convex
+\(f\) a point with \(\nabla f=\vect{0}\) is a global minimum, which is why
+convex problems are the ones that can be declared solved. The losses of interest
+in Part~IV are not convex in the parameters, and \refch{gradient-methods} says
+what survives of the theory anyway.

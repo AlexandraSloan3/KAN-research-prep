@@ -1,0 +1,147 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{What a Learning Problem Is}
+\labch{learning-problem}
+
+\sources{Zhang, Lipton, Li and Smola, \emph{Dive into Deep Learning}
+\cite{d2l2023}, Chapter~1.}
+
+Before any architecture is chosen, a learning problem has to be stated. This
+chapter fixes the vocabulary and the four moving parts that every supervised
+method rearranges, including the ones this project is preparing for.
+
+\section{Vocabulary}
+\labsec{vocabulary}
+
+A few words are used with technical precision throughout Part~IV.
+
+\begin{description}
+	\item[Machine learning] fitting a program's behaviour from data instead of
+	specifying it by hand --- \emph{programming with data}.
+	\item[Deep learning] the subset in which the fitted function is a
+	composition of many parameterised layers.
+	\item[Dataset] the collection of recorded observations.
+	\item[Model] the parameterised family of functions being fitted.
+	\item[Parameter] a number adjusted during training.
+	\item[Learning algorithm] the procedure that adjusts the parameters.
+	\item[Training] the act of running that procedure.
+\end{description}
+
+\marginnote{Keeping ``model'' for the family and ``parameters'' for the numbers
+inside it avoids a persistent ambiguity: a trained model is a family
+\emph{plus} a particular setting, and the two are chosen by different means.}
+
+\section{The four components}
+\labsec{four-components}
+
+Any learning problem, however it is later dressed up, consists of four things
+that must be specified separately:
+
+\begin{description}
+	\item[Data] what the method is allowed to learn from;
+	\item[Model] the family of transformations available to it;
+	\item[Objective function] a number that says how badly the current model is
+	doing;
+	\item[Algorithm] the procedure that adjusts the model to reduce that number.
+\end{description}
+
+\marginnote{Keeping the four apart is worth the pedantry. Most confusing results
+come from changing one of them silently --- a new loss, a new sampling scheme
+--- while attributing the difference to the model.}
+
+\subsection{Data}
+\labsubsec{data}
+
+A dataset is a collection of \emph{examples}, also called samples or data
+points. Each example is described by a fixed list of \emph{features}, also
+called covariates, and in supervised problems it carries a \emph{label} --- the
+special attribute to be predicted, also called the target. The number of
+features is the \emph{dimensionality} of the example, and when that number is the
+same for every example the data are of fixed length, which is what makes it
+possible to write a batch of \(n\) examples as a matrix \(X\in\R^{n\times d}\) and
+reuse everything from \refch{learning-from-data}.
+
+\begin{definition}
+Examples are \emph{i.i.d.} --- independent and identically distributed ---
+when each is drawn from the same distribution, independently of the others. Nearly every
+guarantee about generalisation assumes this, and nearly every deployed system
+violates it to some degree.
+\end{definition}
+
+The formal content of that definition is \refsec{independence}, and the reason it
+matters is \refsec{lln}: without it, an average over the sample stops estimating
+anything in particular.
+
+\subsection{Model}
+\labsubsec{model}
+
+The model is a parameterised map from features to predictions. Fixing the model
+family fixes what the method can express; fixing the parameters within that
+family fixes what it currently predicts. For a linear model the reachable
+predictions are exactly the column space of the data matrix, which is the
+representational question of \refch{vectors-and-column-space} arriving in its
+applied form.
+
+\subsection{Objective function}
+\labsubsec{objective}
+
+The objective --- the loss or cost function --- turns the gap between prediction
+and label into a single number, lower being better. For a real-valued target the
+usual choice is squared error,
+\[
+	\ell(\hat y,y)=\tfrac12(\hat y-y)^{2},
+\]
+and for a categorical target it is cross-entropy. \refsec{losses-from-likelihood}
+shows that these two are not conventions but the maximum likelihood objectives
+for Gaussian and Bernoulli noise respectively.
+
+\begin{remark}
+The quantity one actually cares about is often not differentiable ---
+classification accuracy, ranking quality, revenue. What gets optimised is a
+tractable surrogate, and the gap between the surrogate and the real goal is a
+permanent source of surprise rather than a temporary inconvenience.
+\end{remark}
+
+\subsection{Optimisation algorithm}
+\labsubsec{algorithm}
+
+The algorithm searches the parameter space for a setting that makes the
+objective small. Gradient descent and its variants dominate, for the practical
+reason established in \refsec{backprop}: the gradient of a composed
+differentiable model can be computed at roughly the cost of evaluating it, no
+matter how many parameters it has.
+
+\section{Training, testing, and overfitting}
+\labsec{training-testing}
+
+The available data are split. The \emph{training set} is used to fit the
+parameters; the \emph{test set} is held out and used only to estimate how the
+fitted model behaves on examples it has never seen.
+
+\marginnote{A test set inspected repeatedly stops being a test set. Each look
+leaks information about it into the modelling decisions.}
+
+The split exists because loss on the training set is a biased estimate of
+quality. A model flexible enough can drive training loss towards zero by
+memorising the particular examples it was given, including their noise.
+\emph{Overfitting} is the name for the resulting gap: training loss keeps
+falling while test loss turns and rises.
+
+\begin{remark}
+Overfitting is not a defect of a specific model family. It is what happens
+whenever the capacity of the family is large relative to the information in the
+data, and it is the reason that model selection, regularisation, and honest
+held-out evaluation are part of the method rather than optional extras.
+\end{remark}
+
+By \refsec{clt}, a test set of \(n\) examples estimates the true error with a
+standard deviation of order \(1/\sqrt n\). Reported differences smaller than that
+are not evidence of anything, however carefully the experiment was run.
+
+\section{Why the framing is worth keeping}
+\labsec{framing}
+
+The four components are independent choices, and almost every method discussed
+in \refch{map-of-learning-problems} is a different setting of them rather than a
+different subject. Recognising that keeps the number of things to learn small:
+new architectures change the model, new losses change the objective, and new
+optimisers change the algorithm, but the shape of the problem stays put.

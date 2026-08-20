@@ -1,0 +1,103 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Random Variables and Distributions}
+\labch{random-variables}
+
+\sources{Bertsekas and Tsitsiklis, \emph{Introduction to Probability}, 2nd ed.\
+\cite{bertsekas2008probability}, Chapters~2--3; MIT 6.041 \cite{ocw6041},
+Lectures~5--12.}
+
+A random variable attaches a number to each outcome, which turns questions about
+events into questions about functions --- and therefore into questions that
+calculus and linear algebra can answer.
+
+\section{Discrete random variables}
+\labsec{discrete-rv}
+
+\begin{definition}
+A \emph{random variable} is a function \(X:\Omega\to\R\). It is \emph{discrete}
+when its range is finite or countable, and it is then described by its
+\emph{probability mass function} \(p_X(x)=\Pr(X=x)\), which is non-negative and
+sums to one.
+\end{definition}
+
+Three that recur:
+
+\begin{description}
+	\item[Bernoulli\((p\))] \(X\in\{0,1\}\) with \(\Pr(X=1)=p\). The model for a
+	single binary label.
+	\item[Binomial\((n,p\))] the number of successes in \(n\) independent
+	Bernoulli trials, \(p_X(k)=\binom{n}{k}p^{k}(1-p)^{n-k}\).
+	\item[Poisson\((\lambda\))] \(p_X(k)=e^{-\lambda}\lambda^{k}/k!\), the limit
+	of Binomial\((n,\lambda/n)\) as \(n\to\infty\); counts of rare events.
+\end{description}
+
+\section{Continuous random variables}
+\labsec{continuous-rv}
+
+\begin{definition}
+\(X\) is \emph{continuous} with \emph{density} \(f_X\ge0\) when
+\[
+	\Pr(a\le X\le b)=\int_a^b f_X(x)\,dx,
+	\qquad
+	\int_{-\infty}^{\infty}f_X(x)\,dx=1 .
+\]
+\end{definition}
+
+A density is not a probability: \(f_X(x)\) may exceed one, and
+\(\Pr(X=x)=0\) for every single point. What has meaning is \(f_X(x)\,dx\), the
+probability of a small interval.
+
+The \emph{cumulative distribution function} \(F_X(x)=\Pr(X\le x)\) works for both
+kinds, is non-decreasing, and satisfies \(F_X'=f_X\) in the continuous case.
+
+\begin{description}
+	\item[Uniform\((a,b\))] constant density \(1/(b-a)\) on \([a,b]\).
+	\item[Exponential\((\lambda\))] \(f_X(x)=\lambda e^{-\lambda x}\) for
+	\(x\ge0\); memoryless waiting time.
+	\item[Gaussian\((\mu,\sigma^{2}\))]
+	\(f_X(x)=\dfrac{1}{\sqrt{2\pi\sigma^{2}}}\exp\Bigl(-\dfrac{(x-\mu)^{2}}{2\sigma^{2}}\Bigr)\).
+\end{description}
+
+\marginnote{The Gaussian earns its place twice over: \refch{limit-theorems}
+explains why sums of many small effects look Gaussian, and \refch{estimation}
+shows that assuming Gaussian noise turns maximum likelihood into least squares.}
+
+\section{Joint, marginal, and conditional distributions}
+\labsec{joint}
+
+For two random variables the joint density \(f_{X,Y}\) determines everything.
+Integrating out one variable gives a \emph{marginal},
+\[
+	f_X(x)=\int f_{X,Y}(x,y)\,dy,
+\]
+and dividing gives a \emph{conditional},
+\(f_{Y\mid X}(y\mid x)=f_{X,Y}(x,y)/f_X(x)\) wherever \(f_X(x)>0\). Independence
+is the statement \(f_{X,Y}=f_Xf_Y\).
+
+\begin{remark}
+Supervised learning is the business of modelling \(f_{Y\mid X}\) and nothing
+else. The marginal \(f_X\) governs which inputs are seen, and a change in it
+without a change in \(f_{Y\mid X}\) is the mildest form of the distribution shift
+named in \refch{map-of-learning-problems}.
+\end{remark}
+
+\section{Transforming a random variable}
+\labsec{transformations}
+
+If \(Y=g(X)\) with \(g\) differentiable and invertible, the density transforms by
+the Jacobian factor of \refsec{jacobian-determinant}:
+\[
+	f_Y(\vect{y})=f_X\bigl(g^{-1}(\vect{y})\bigr)\,
+	\bigl|\det J_{g^{-1}}(\vect{y})\bigr| .
+\]
+
+\begin{example}
+For \(X\sim\)~Gaussian\((0,1)\) and \(Y=\sigma X+\mu\), the inverse is
+\((y-\mu)/\sigma\) with derivative \(1/\sigma\), giving the
+Gaussian\((\mu,\sigma^{2})\) density. Standardising a feature is exactly this
+change of variables run backwards.
+\end{example}
+
+\marginnote{Densities need the Jacobian; expectations do not. Computing
+\(\E[g(X)]\) requires no such correction, as \refsec{lotus} explains --- a
+distinction worth keeping firmly separate.}

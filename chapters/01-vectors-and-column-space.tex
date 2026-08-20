@@ -1,0 +1,269 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Vectors, Matrices, and Column Space}
+\labch{vectors-and-column-space}
+
+\sources{Strang, \emph{Introduction to Linear Algebra}, 6th ed.\ \cite{strang2023ila},
+§1.1--1.4 and §2.1; MIT 18.06 \cite{ocw1806}, Lecture~1.}
+
+Linear algebra begins with a bookkeeping question --- how to store a system of
+equations --- and almost immediately turns into a geometric one. This chapter
+sets up the notation used for the rest of the book and introduces the two
+readings of \(A\vect{x}=\vect{b}\) that everything later depends on.
+
+\section{The matrix form of a linear system}
+\labsec{matrix-form}
+
+A system of \(m\) linear equations in \(n\) unknowns can be packed into a single
+product,
+\[
+	A\vect{x}=\vect{b},
+\]
+where \(A\in\R^{m\times n}\) holds the coefficients, \(\vect{x}\in\R^{n}\) holds
+the unknowns, and \(\vect{b}\in\R^{m}\) is the target. Throughout this section I
+work with
+\[
+	A=\begin{bmatrix}
+		2 & -1 & 0 \\
+		-1 & 2 & -1 \\
+		0 & -3 & 4
+	\end{bmatrix},
+	\qquad
+	\vect{b}=\begin{bmatrix}0\\-1\\4\end{bmatrix}.
+\]
+
+Read one row at a time, the product unpacks into the three equations
+\begin{align*}
+	2x-y    &= 0,\\
+	-x+2y-z &= -1,\\
+	-3y+4z  &= 4.
+\end{align*}
+
+\marginnote{Nothing has been solved yet. The matrix form is a change of
+notation, not a change of content --- but the notation is what makes the two
+pictures below visible.}
+
+Substituting \(\vect{x}=\begin{bmatrix}0&0&1\end{bmatrix}\tp\) satisfies all
+three equations at once, so this vector solves the system. The interesting
+question is not \emph{whether} this particular vector works, but how one would
+have found it, and what the two ways of reading the product suggest.
+
+\section{The row picture: equations as constraints}
+\labsec{row-picture}
+
+Each row of a three-variable system describes a plane in \(\R^{3}\). A vector
+solves the system exactly when it lies on all three planes simultaneously, so
+the solution set is the intersection of the three planes. For the example above
+that intersection is the single point \((0,0,1)\).
+
+\begin{remark}
+The row picture is a picture of \emph{constraints}. Every additional equation
+removes a degree of freedom, and a solution is whatever survives all of the
+restrictions at once.
+\end{remark}
+
+Its usefulness is bounded by the fact that it has to be drawn. With nine
+unknowns the same reasoning would require intersecting hyperplanes in
+\(\R^{9}\), which no amount of care will make visible. The algebra is
+unaffected --- elimination will still run --- but the geometric intuition stops
+paying for itself. That is the first reason to look for a second reading of the
+same product.
+
+\section{The column picture: targets as combinations}
+\labsec{column-picture}
+
+Write \(\vect{a}_1,\vect{a}_2,\vect{a}_3\) for the columns of \(A\). Expanding
+the product by columns instead of by rows gives
+\[
+	A\vect{x}=x\vect{a}_1+y\vect{a}_2+z\vect{a}_3,
+\]
+so the system asks for coefficients that mix the three columns into the target:
+\[
+	x\begin{bmatrix}2\\-1\\0\end{bmatrix}
+	+y\begin{bmatrix}-1\\2\\-3\end{bmatrix}
+	+z\begin{bmatrix}0\\-1\\4\end{bmatrix}
+	=\begin{bmatrix}0\\-1\\4\end{bmatrix}.
+\]
+In this instance the answer can be read off without any calculation: the target
+\emph{is} the third column, so \((x,y,z)=(0,0,1)\). The example is convenient,
+but the idea it illustrates is not.
+
+\begin{definition}
+A vector \(\vect{b}\) is a \emph{linear combination} of
+\(\vect{a}_1,\ldots,\vect{a}_n\) when there exist scalars \(x_1,\ldots,x_n\)
+with
+\[
+	\vect{b}=x_1\vect{a}_1+\cdots+x_n\vect{a}_n .
+\]
+The set of all such combinations is the \emph{column space} of \(A\), written
+\(\Col(A)\).
+\end{definition}
+
+The definition converts a question about solving into a question about
+membership:
+\[
+	A\vect{x}=\vect{b}\ \text{is solvable}
+	\quad\Longleftrightarrow\quad
+	\vect{b}\in\Col(A).
+\]
+
+\marginnote{The row picture asks whether a candidate satisfies every
+restriction. The column picture asks which recipe of the available ingredients
+produces the target. Both are correct; they suggest different algorithms.}
+
+Changing the target tests a different recipe built from the same ingredients.
+Taking one of the first column and one of the second,
+\[
+	\begin{bmatrix}2\\-1\\0\end{bmatrix}
+	+\begin{bmatrix}-1\\2\\-3\end{bmatrix}
+	=\begin{bmatrix}1\\1\\-3\end{bmatrix},
+\]
+so the system with target \(\begin{bmatrix}1&1&-3\end{bmatrix}\tp\) is solved by
+\(\vect{x}=\begin{bmatrix}1&1&0\end{bmatrix}\tp\).
+
+\subsection{When is every target reachable?}
+\labsubsec{reachability}
+
+For a square matrix \(A\in\R^{n\times n}\) the natural question is whether
+\(A\vect{x}=\vect{b}\) can be solved for \emph{every} \(\vect{b}\in\R^{n}\). In
+the language just introduced this asks whether the columns fill the whole space,
+\[
+	\Col(A)=\R^{n}.
+\]
+
+If the columns are linearly independent they span \(\R^{n}\), every target is
+reachable, and the coefficients are unique. The matrix is then invertible and
+\(\vect{x}=A^{-1}\vect{b}\).
+
+If instead the columns are dependent, at least one of them contributes no new
+direction: it already lies in the span of the others. In \(\R^{3}\) the extreme
+case is three columns lying in a common plane. Every combination stays in that
+plane, so any target off the plane is unreachable, while targets on it are
+reached in infinitely many ways.
+
+\begin{remark}
+Dependence and invertibility are the same phenomenon seen from two sides.
+Independent columns give exactly one solution for each of the \(n\)-dimensional
+family of targets; dependent columns give either none or infinitely many,
+depending on where the target sits.
+\end{remark}
+
+This dichotomy --- invertible against singular --- is the thread that runs
+through elimination in \refch{elimination}, the four subspaces in
+\refch{four-subspaces}, and the singular value decomposition in \refch{svd}. It
+reappears, transformed, whenever a network layer is asked whether it can
+represent a given output.
+
+\section{Matrix--vector multiplication, two readings}
+\labsec{matvec}
+
+The column viewpoint supplies the definition of the product that is easiest to
+reason with. If
+\[
+	A=\begin{bmatrix}\vert&&\vert\\ \vect{a}_1&\cdots&\vect{a}_n\\ \vert&&\vert\end{bmatrix},
+	\qquad
+	\vect{x}=\begin{bmatrix}x_1\\\vdots\\x_n\end{bmatrix},
+\]
+then
+\begin{equation}
+	A\vect{x}=x_1\vect{a}_1+\cdots+x_n\vect{a}_n .
+	\labeq{matvec-columns}
+\end{equation}
+
+The rule taught first in school computes one entry at a time: entry \(i\) of
+\(A\vect{x}\) is the dot product of row \(i\) of \(A\) with \(\vect{x}\). Both
+give the same numbers. Taking
+\[
+	A=\begin{bmatrix}2&5\\1&3\end{bmatrix},\qquad
+	\vect{x}=\begin{bmatrix}1\\2\end{bmatrix},
+\]
+the column reading gives
+\[
+	1\begin{bmatrix}2\\1\end{bmatrix}+2\begin{bmatrix}5\\3\end{bmatrix}
+	=\begin{bmatrix}12\\7\end{bmatrix},
+\]
+and the row reading gives the same vector through \(2\cdot1+5\cdot2=12\) and
+\(1\cdot1+3\cdot2=7\).
+
+\begin{remark}
+The two readings are not rivals; they answer different questions. Row by row is
+how the product is \emph{computed} entry by entry. Column by column is what the
+product \emph{means}: \(A\vect{x}\) never leaves the column space of \(A\), no
+matter which \(\vect{x}\) is supplied.
+\end{remark}
+
+That last observation is worth stating on its own, because it is the reason
+\refeq{matvec-columns} is the form used throughout this book.
+
+\begin{proposition}
+For every \(\vect{x}\in\R^{n}\) the product \(A\vect{x}\) lies in
+\(\Col(A)\), and every element of \(\Col(A)\) arises as \(A\vect{x}\) for some
+\(\vect{x}\).
+\end{proposition}
+
+\begin{proof}
+Equation~\refeq{matvec-columns} exhibits \(A\vect{x}\) as a linear combination
+of the columns, which is membership in \(\Col(A)\) by definition. Conversely a
+combination \(x_1\vect{a}_1+\cdots+x_n\vect{a}_n\) is the product of \(A\) with
+the coefficient vector \(\vect{x}=[x_1,\ldots,x_n]\tp\).
+\end{proof}
+
+\section{Span, independence, and the shape of a solution set}
+\labsec{span-independence}
+
+Two definitions make the earlier discussion precise.
+
+\begin{definition}
+The \emph{span} of \(\vect{a}_1,\ldots,\vect{a}_n\) is the set of all their
+linear combinations. The vectors are \emph{linearly independent} when
+\[
+	x_1\vect{a}_1+\cdots+x_n\vect{a}_n=\vect{0}
+	\quad\text{forces}\quad
+	x_1=\cdots=x_n=0 ,
+\]
+and \emph{linearly dependent} otherwise.
+\end{definition}
+
+\marginnote{Independence is a statement about the zero target only, yet it
+controls the solution count for every target at once. That leverage is what
+makes it the central definition of the subject.}
+
+Dependence is exactly the statement that some non-zero \(\vect{x}\) satisfies
+\(A\vect{x}=\vect{0}\). Suppose such an \(\vect{x}_0\neq\vect{0}\) exists and
+\(\vect{x}_p\) solves \(A\vect{x}=\vect{b}\). Then for every scalar \(c\),
+\[
+	A(\vect{x}_p+c\vect{x}_0)=A\vect{x}_p+cA\vect{x}_0=\vect{b}+\vect{0}=\vect{b},
+\]
+so one solution has multiplied into infinitely many. This is the whole
+explanation for the trichotomy that a linear system obeys.
+
+\begin{theorem}
+A system \(A\vect{x}=\vect{b}\) has no solution, exactly one solution, or
+infinitely many. It never has, for instance, exactly two.
+\end{theorem}
+
+\begin{proof}
+If there is no solution the first case holds. If \(\vect{x}_p\) and
+\(\vect{x}_q\) are distinct solutions then \(\vect{x}_0=\vect{x}_p-\vect{x}_q\)
+is non-zero and satisfies \(A\vect{x}_0=\vect{0}\); the displayed calculation
+above then produces a distinct solution for every scalar \(c\), so there are
+infinitely many. Hence two or more solutions already forces infinitely many.
+\end{proof}
+
+The set of vectors killed by \(A\) therefore deserves a name of its own; it is
+the nullspace, and \refch{four-subspaces} is largely about it.
+
+\section{Notation used in this book}
+\labsec{notation}
+
+Lower-case bold letters denote column vectors, capitals denote matrices, and
+\(A\tp\) is the transpose. The columns of \(A\) are \(\vect{a}_1,\ldots\); the
+entry in row \(i\) and column \(j\) is \(a_{ij}\). The symbol \(\R^{n}\) is the
+set of real column vectors of length \(n\), and \(I\) is the identity matrix
+whose size is always clear from context.
+
+Vectors are columns unless stated otherwise, so a row vector is written
+\(\vect{v}\tp\). Data matrices are the one place where this convention grates:
+a batch of \(n\) examples with \(d\) features is stored as \(X\in\R^{n\times d}\)
+with one example per \emph{row}, which is the convention every numerical library
+uses. Whenever both appear together the shapes are stated explicitly rather than
+left to be inferred.

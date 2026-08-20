@@ -1,0 +1,142 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Determinants}
+\labch{determinants}
+
+\sources{Strang, \emph{Introduction to Linear Algebra}, 6th ed.\ \cite{strang2023ila},
+§5.1--5.3; MIT 18.06 \cite{ocw1806}, Lectures~18--20.}
+
+The determinant compresses a square matrix into one number that answers a
+yes-or-no question: is the matrix invertible? Its main use in this book is as
+the machinery behind eigenvalues in \refch{eigenvalues}.
+
+\section{Three properties that define it}
+\labsec{det-properties}
+
+Rather than start from a formula, take three requirements and derive everything
+from them. For \(A\in\R^{n\times n}\), the determinant \(\det A\) is the unique
+function satisfying:
+
+\begin{enumerate}
+	\item \(\det I=1\);
+	\item exchanging two rows reverses the sign;
+	\item it is linear in each row separately, the other rows being held fixed.
+\end{enumerate}
+
+\marginnote{Property~3 is linearity \emph{one row at a time}, not linearity in
+the matrix. Multiplying the whole of an \(n\times n\) matrix by \(c\) multiplies
+the determinant by \(c^{n}\), once per row.}
+
+\section{What follows immediately}
+\labsec{det-consequences}
+
+\begin{proposition}
+If two rows of \(A\) are equal then \(\det A=0\).
+\end{proposition}
+
+\begin{proof}
+Exchanging the two equal rows leaves \(A\) unchanged but reverses the sign by
+property~2, so \(\det A=-\det A\).
+\end{proof}
+
+\begin{proposition}
+Subtracting a multiple of one row from another leaves the determinant unchanged.
+\end{proposition}
+
+\begin{proof}
+By linearity in the affected row, the determinant of the result is
+\(\det A\) minus \(c\) times the determinant of a matrix with two equal rows,
+and that second term is zero.
+\end{proof}
+
+These two facts make elimination a legitimate way to compute a determinant: the
+subtraction steps cost nothing and only the row exchanges have to be counted.
+
+\begin{proposition}
+A triangular matrix has determinant equal to the product of its diagonal
+entries; a matrix with a zero row has determinant \(0\).
+\end{proposition}
+
+\section{Determinant from the pivots}
+\labsec{det-pivots}
+
+Combining the last two sections: eliminate \(A\) into \(U\), keeping track of how
+many row exchanges were used. Then
+\[
+	\det A=(-1)^{\,\text{number of exchanges}}\prod_{i=1}^{n}u_{ii},
+\]
+the product of the pivots up to sign.
+
+\begin{example}
+The elimination carried out in \refsec{elimination-example} on
+\[
+	A=\begin{bmatrix}1&2&1\\3&8&1\\0&4&1\end{bmatrix}
+\]
+needed no row exchanges and produced the pivots \(1,2,5\), so \(\det A=10\).
+\end{example}
+
+\begin{theorem}
+\(A\) is invertible if and only if \(\det A\neq0\).
+\end{theorem}
+
+\begin{proof}
+Elimination produces \(n\) non-zero pivots exactly when \(A\) is non-singular,
+and the displayed formula makes \(\det A\) non-zero precisely in that case.
+\end{proof}
+
+The multiplicative rule \(\det(AB)=(\det A)(\det B)\) follows from the same
+circle of ideas, and gives \(\det(A^{-1})=1/\det A\) as a special case. Transposition also leaves it alone,
+\(\det(A\tp)=\det A\), so each statement about rows has a counterpart about
+columns.
+
+\section{Cofactors and the big formula}
+\labsec{cofactors}
+
+Expanding property~3 across all rows at once gives a sum over the \(n!\)
+permutations, one term for each way of picking a single entry from every row and
+column. For \(n=3\) this is the familiar six-term expression; for \(n=10\) it has
+over three million terms and is useless for computation.
+
+The practical repackaging is cofactor expansion along a row,
+\[
+	\det A=\sum_{j=1}^{n}a_{ij}C_{ij},
+	\qquad
+	C_{ij}=(-1)^{i+j}\det M_{ij},
+\]
+where \(M_{ij}\) deletes row \(i\) and column \(j\).
+
+\begin{example}
+Expanding the same matrix along its first row,
+\[
+	\det A=1(8-4)-2(3-0)+1(12-0)=4-6+12=10,
+\]
+agreeing with the pivot calculation.
+\end{example}
+
+\marginnote{Two routes, one answer. Cofactors are convenient for small or sparse
+matrices and for symbolic work; pivots are what any implementation actually
+uses.}
+
+\section{Three uses}
+\labsec{det-uses}
+
+\paragraph{The inverse formula.}
+\(A^{-1}=\dfrac{1}{\det A}\,C\tp\), where \(C\) is the matrix of cofactors. It
+makes the dependence of \(A^{-1}\) on the entries of \(A\) explicit, and shows
+why a determinant near zero makes the inverse enormous.
+
+\paragraph{Cramer's rule.}
+The \(j\)th component of the solution of \(A\vect{x}=\vect{b}\) is
+\(x_j=\det B_j/\det A\), where \(B_j\) is \(A\) with column \(j\) replaced by
+\(\vect{b}\). Elegant, and far too slow to use.
+
+\paragraph{Volume.}
+\(|\det A|\) is the volume of the parallelepiped spanned by the rows of \(A\).
+A zero determinant means the solid is flat --- the rows lie in a lower
+dimensional subspace --- which is the geometric form of singularity.
+
+\begin{remark}
+The volume reading is the one that carries into calculus. In
+\refch{jacobian-hessian} the determinant of the Jacobian is the local
+volume-scaling factor of a nonlinear map, and it is what appears when a change of
+variables is made inside an integral.
+\end{remark}

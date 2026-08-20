@@ -1,0 +1,139 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Estimation}
+\labch{estimation}
+
+\sources{Bertsekas and Tsitsiklis, \emph{Introduction to Probability}, 2nd ed.\
+\cite{bertsekas2008probability}, Chapters~8--9; MIT 6.041 \cite{ocw6041},
+Lectures~21--25; MIT 18.05 \cite{ocw1805}.}
+
+Estimation is where probability meets the fitted model. This chapter shows that
+the two losses used almost universally in supervised learning are not arbitrary
+choices but maximum likelihood under two different noise assumptions --- and
+that weight decay is a prior.
+
+\section{The problem}
+\labsec{estimation-problem}
+
+Data \(x_1,\ldots,x_n\) are assumed drawn from a family of distributions indexed
+by an unknown parameter \(\theta\). An \emph{estimator} is any function
+\(\hat\theta(x_1,\ldots,x_n)\) of the data. It is a random variable, so it has a
+bias \(\E[\hat\theta]-\theta\) and a variance, and its quality is usually
+measured by mean squared error, which decomposes as
+\[
+	\E\bigl[(\hat\theta-\theta)^{2}\bigr]
+	=\bigl(\E[\hat\theta]-\theta\bigr)^{2}+\Var(\hat\theta).
+\]
+
+\marginnote{Bias and variance trade against each other. The regularisation of
+\refsec{regularisation} buys a large reduction in the second term at the cost of
+a small increase in the first --- which is why it works.}
+
+\section{Maximum likelihood}
+\labsec{mle}
+
+\begin{definition}
+The \emph{likelihood} is the joint density of the observed data read as a
+function of \(\theta\),
+\[
+	L(\theta)=\prod_{i=1}^{n}f(x_i\mid\theta),
+\]
+and the maximum likelihood estimate is the \(\theta\) maximising it, equivalently
+maximising \(\log L(\theta)=\sum_i\log f(x_i\mid\theta)\).
+\end{definition}
+
+The logarithm is taken because it converts the product into a sum, which
+differentiates cleanly and does not underflow.
+
+\begin{example}
+For \(X_i\sim\)~Bernoulli\((p)\),
+\(\log L(p)=\sum_i\bigl[x_i\log p+(1-x_i)\log(1-p)\bigr]\). Differentiating and
+setting to zero gives \(\hat p=\bar x\), the observed frequency.
+\end{example}
+
+\begin{example}
+For \(X_i\sim\)~Gaussian\((\mu,\sigma^{2})\) with \(\sigma\) known,
+\[
+	\log L(\mu)=-\frac{1}{2\sigma^{2}}\sum_i(x_i-\mu)^{2}+\text{const},
+\]
+so \(\hat\mu=\bar x\). Estimating \(\sigma^{2}\) as well gives
+\(\hat\sigma^{2}=\frac1n\sum_i(x_i-\bar x)^{2}\), which is biased low; dividing by
+\(n-1\) instead removes the bias.
+\end{example}
+
+\section{Two losses, one principle}
+\labsec{losses-from-likelihood}
+
+Now let the parameter be the weights of a model \(f_{\vect{w}}\) and condition on
+inputs.
+
+\paragraph{Gaussian noise gives squared error.}
+Assume \(y_i=f_{\vect{w}}(\vect{x}_i)+\varepsilon_i\) with
+\(\varepsilon_i\sim\)~Gaussian\((0,\sigma^{2})\), independent. Then
+\[
+	\log L(\vect{w})
+	=-\frac{1}{2\sigma^{2}}\sum_{i=1}^{n}\bigl(y_i-f_{\vect{w}}(\vect{x}_i)\bigr)^{2}
+	+\text{const},
+\]
+so maximising the likelihood is minimising the sum of squared errors. With a
+linear model this is precisely the least-squares problem of
+\refch{orthogonality}.
+
+\paragraph{Bernoulli labels give cross-entropy.}
+Assume \(y_i\in\{0,1\}\) with
+\(\Prob(y_i=1)=\hat y_i=f_{\vect{w}}(\vect{x}_i)\). Then
+\[
+	-\log L(\vect{w})
+	=-\sum_{i=1}^{n}\bigl[y_i\log\hat y_i+(1-y_i)\log(1-\hat y_i)\bigr],
+\]
+which is the cross-entropy loss.
+
+\begin{remark}
+A question left open in \refsec{worked-gradient} is settled here. Squared
+error applied to a logistic output carries a factor \(\hat y(1-\hat y)\) that vanishes when the unit
+saturates; cross-entropy is the loss that the Bernoulli assumption actually
+implies, and its gradient with respect to the pre-activation reduces to
+\(\hat y-y\), with no vanishing factor. The improvement is a consequence of
+matching the loss to the noise model rather than a numerical trick.
+\end{remark}
+
+\section{Bayesian estimation}
+\labsec{bayesian}
+
+Maximum likelihood treats \(\theta\) as fixed and unknown. The Bayesian
+alternative gives it a distribution: a \emph{prior} \(p(\theta)\) before the data
+and a \emph{posterior} after, related by \refeq{bayes},
+\[
+	p(\theta\mid \text{data})\ \propto\ L(\theta)\,p(\theta).
+\]
+Reporting the maximiser of the posterior is \emph{maximum a posteriori}
+estimation.
+
+\begin{proposition}
+For a linear model with Gaussian noise of variance \(\sigma^{2}\) and a Gaussian
+prior \(\vect{w}\sim\)~Gaussian\((\vect{0},\tau^{2}I)\), the maximum a posteriori
+estimate minimises
+\[
+	\frac{1}{2\sigma^{2}}\lVert X\vect{w}-\vect{y}\rVert^{2}
+	+\frac{1}{2\tau^{2}}\lVert\vect{w}\rVert^{2},
+\]
+which is ridge regression with \(\delta^{2}=\sigma^{2}/\tau^{2}\).
+\end{proposition}
+
+\begin{proof}
+Take logarithms in the display above. The log-likelihood contributes the first
+term up to a constant, and the log-prior of a Gaussian contributes the second.
+Maximising the sum is minimising its negative.
+\end{proof}
+
+\marginnote{So the \(\delta^{2}I\) added in \refsec{regularisation} for numerical
+reasons, the weight decay added in training for empirical reasons, and a Gaussian
+prior on the weights are three descriptions of one modification.}
+
+\section{What this part establishes}
+\labsec{part3-summary}
+
+Three conclusions carry into Part~IV. Averages over a sample estimate
+expectations, with error shrinking like \(1/\sqrt n\). Squared error and
+cross-entropy are maximum likelihood under Gaussian and Bernoulli assumptions
+respectively. And regularisation is a prior, which means the choice of penalty is
+a statement of belief about the parameters rather than a free knob.

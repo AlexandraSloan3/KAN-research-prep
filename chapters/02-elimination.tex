@@ -1,0 +1,374 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Solving \texorpdfstring{\(A\vect{x}=\vect{b}\)}{Ax=b}: Elimination and
+\texorpdfstring{\(A=LU\)}{A=LU}}
+\labch{elimination}
+
+\sources{Strang, \emph{Introduction to Linear Algebra}, 6th ed.\ \cite{strang2023ila},
+§1.4 and §2.2--2.7; MIT 18.06 \cite{ocw1806}, Lectures~2--5.}
+
+\refch{vectors-and-column-space} explained what a solution \emph{is}. This
+chapter is about how to find one without guessing, and about what the procedure
+leaves behind: a factorisation of \(A\) that is worth more than the solution it
+was invented to produce.
+
+\section{Elimination on an example}
+\labsec{elimination-example}
+
+Take
+\[
+	A=\begin{bmatrix}1&2&1\\3&8&1\\0&4&1\end{bmatrix},
+	\qquad
+	\vect{b}=\begin{bmatrix}2\\12\\2\end{bmatrix},
+\]
+and work with the augmented array \(\begin{bmatrix}A&\vect{b}\end{bmatrix}\) so
+that the right-hand side receives every operation the left-hand side does.
+
+The first \emph{pivot} is the entry \(a_{11}=1\). Subtracting \(3\times\)row~1
+from row~2 clears the entry below it, and the \((3,1)\) entry is already zero, so
+nothing is needed there:
+\[
+	\left[\begin{array}{ccc|c}
+		1&2&1&2\\ 3&8&1&12\\ 0&4&1&2
+	\end{array}\right]
+	\longrightarrow
+	\left[\begin{array}{ccc|c}
+		1&2&1&2\\ 0&2&-2&6\\ 0&4&1&2
+	\end{array}\right].
+\]
+
+\marginnote{The multiplier \(3\) is the number of row~1 subtracted from row~2. It
+is worth recording rather than discarding: \refsec{lu} assembles all the
+multipliers into a matrix.}
+
+The second pivot is the \(2\) now sitting in position \((2,2)\). Subtracting
+twice row~2 from row~3 clears below it:
+\[
+	\longrightarrow
+	\left[\begin{array}{ccc|c}
+		1&2&1&2\\ 0&2&-2&6\\ 0&0&5&-10
+	\end{array}\right]
+	=\left[\begin{array}{c|c}U&\vect{c}\end{array}\right].
+\]
+
+The left block \(U\) is \emph{upper triangular}, the pivots are \(1,2,5\), and
+the transformed right-hand side is \(\vect{c}=[2,6,-10]\tp\).
+
+\begin{definition}
+A \emph{pivot} is the first non-zero entry in a row at the moment that row is
+used to clear the entries beneath it. The positions of the pivots, not their
+values, determine the structure of the solution set.
+\end{definition}
+
+\section{Back-substitution}
+\labsec{back-substitution}
+
+Triangular systems are solved from the bottom up. Reading \(U\vect{x}=\vect{c}\)
+as equations,
+\begin{align*}
+	x+2y+z &= 2,\\
+	2y-2z  &= 6,\\
+	5z     &= -10,
+\end{align*}
+the last equation gives \(z=-2\). Substituting into the second,
+\(2y-2(-2)=6\), so \(2y=2\) and \(y=1\). Substituting both into the first,
+\(x+2(1)+(-2)=2\), so \(x=2\). Hence
+\[
+	\vect{x}=\begin{bmatrix}2\\1\\-2\end{bmatrix},
+\]
+and substituting into the original \(A\vect{x}\) returns
+\([2,\,6+8-2,\,4-2]\tp=[2,12,2]\tp=\vect{b}\), as required.
+
+\marginnote{Always substitute back into the \emph{original} matrix, not into
+\(U\). An arithmetic slip made during elimination is invisible to a check
+performed on the eliminated system.}
+
+\section{Elimination matrices}
+\labsec{elimination-matrices}
+
+Each elimination step is itself a matrix multiplication. Subtracting three
+copies of row~1 from row~2 is achieved by left multiplication with
+\[
+	E_{21}=\begin{bmatrix}1&0&0\\-3&1&0\\0&0&1\end{bmatrix},
+\]
+which differs from the identity in exactly one off-diagonal entry. Indeed
+\(E_{21}A\) reproduces the first array computed above. The second step is
+\[
+	E_{32}=\begin{bmatrix}1&0&0\\0&1&0\\0&-2&1\end{bmatrix},
+	\qquad
+	E_{32}\bigl(E_{21}A\bigr)=U .
+\]
+
+Because matrix multiplication is associative, the two steps can be combined
+before touching \(A\):
+\[
+	\bigl(E_{32}E_{21}\bigr)A=U .
+\]
+
+\begin{remark}
+Associativity is doing real work here. It is what allows a sequence of row
+operations to be replaced by a single matrix, and it is why the whole
+elimination process can be recorded as a factorisation instead of as a script of
+instructions.
+\end{remark}
+
+Undoing a step is as easy as performing it: if \(E_{21}\) subtracts three copies
+of row~1 from row~2, then adding them back inverts it,
+\[
+	E_{21}^{-1}=\begin{bmatrix}1&0&0\\3&1&0\\0&0&1\end{bmatrix},
+	\qquad
+	E_{21}^{-1}E_{21}=I .
+\]
+
+\section{Matrix multiplication, four ways}
+\labsec{four-ways}
+
+Since elimination is multiplication, it is worth collecting the ways a product
+\(C=AB\) with \(A\in\R^{m\times n}\) and \(B\in\R^{n\times p}\) can be read. All
+four produce the same \(C\); each makes a different fact obvious.
+
+\begin{description}
+	\item[Entry by entry] \(c_{ij}=\sum_{k=1}^{n}a_{ik}b_{kj}\), the dot product
+	of row \(i\) of \(A\) with column \(j\) of \(B\).
+	\item[Column by column] column \(j\) of \(C\) is \(A\vect{b}_j\). Hence
+	\emph{every column of \(C\) is a combination of the columns of \(A\)}, and
+	\(\Col(AB)\subseteq\Col(A)\).
+	\item[Row by row] row \(i\) of \(C\) is \(\vect{a}_i\tp B\), a combination of
+	the rows of \(B\). Hence the row space of \(AB\) sits inside the row space of
+	\(B\).
+	\item[Column times row] \(C=\sum_{k=1}^{n}\vect{a}_k\vect{b}_k\tp\), a sum of
+	\(n\) rank-one matrices, where \(\vect{a}_k\) is column \(k\) of \(A\) and
+	\(\vect{b}_k\tp\) is row \(k\) of \(B\).
+\end{description}
+
+\marginnote{The fourth reading is the one that generalises furthest. The
+singular value decomposition in \refch{svd} is precisely a column-times-row
+expansion in which the terms are ordered by importance.}
+
+\begin{example}
+With
+\[
+	A=\begin{bmatrix}2&7\\3&8\\4&9\end{bmatrix},
+	\qquad
+	B=\begin{bmatrix}1&6\\0&0\end{bmatrix},
+\]
+the column-times-row reading gives
+\[
+	AB=\begin{bmatrix}2\\3\\4\end{bmatrix}\begin{bmatrix}1&6\end{bmatrix}
+	+\begin{bmatrix}7\\8\\9\end{bmatrix}\begin{bmatrix}0&0\end{bmatrix}
+	=\begin{bmatrix}2&12\\3&18\\4&24\end{bmatrix}.
+\]
+The second term vanishes because the second row of \(B\) is zero, which the
+entry-by-entry rule would have obscured behind six separate multiplications.
+\end{example}
+
+A fifth reading, block multiplication, follows from the same algebra: if \(A\)
+and \(B\) are cut into conforming blocks then
+\[
+	\begin{bmatrix}A_1&A_2\\A_3&A_4\end{bmatrix}
+	\begin{bmatrix}B_1&B_2\\B_3&B_4\end{bmatrix}
+	=\begin{bmatrix}A_1B_1+A_2B_3 & A_1B_2+A_2B_4\\
+	                A_3B_1+A_4B_3 & A_3B_2+A_4B_4\end{bmatrix},
+\]
+provided the block shapes match. Every practical implementation of matrix
+multiplication --- and every batched computation in a neural network --- relies
+on this.
+
+\section{Row exchanges and permutation matrices}
+\labsec{permutations}
+
+A zero in the pivot position is not fatal on its own. If a row further down has
+a non-zero entry in that column, exchanging the two rows restores a usable
+pivot. The exchange is again a matrix: for two rows,
+\[
+	P=\begin{bmatrix}0&1\\1&0\end{bmatrix},
+	\qquad
+	P\begin{bmatrix}a&b\\c&d\end{bmatrix}=\begin{bmatrix}c&d\\a&b\end{bmatrix}.
+\]
+
+\begin{remark}
+Multiplying on the \emph{left} rearranges rows; multiplying on the \emph{right}
+rearranges columns. The same \(P\) gives
+\[
+	\begin{bmatrix}a&b\\c&d\end{bmatrix}P=\begin{bmatrix}b&a\\d&c\end{bmatrix}.
+\]
+Side matters, and the habit of checking which side an operation acts on prevents
+a large fraction of avoidable errors.
+\end{remark}
+
+\begin{definition}
+A \emph{permutation matrix} is obtained from \(I\) by reordering its rows. Every
+permutation matrix satisfies \(P^{-1}=P\tp\), because the reordering is undone
+by the reverse reordering.
+\end{definition}
+
+With exchanges allowed, elimination on an invertible matrix always succeeds, and
+the factorisation of \refsec{lu} becomes \(PA=LU\).
+
+\section{When elimination fails}
+\labsec{elimination-failure}
+
+Failure occurs only when a pivot position holds zero \emph{and} every entry
+below it in that column is zero as well: there is nothing left to exchange with.
+A schematic third stage of the form
+\[
+	\begin{bmatrix}\ast&\ast&\ast\\ 0&\ast&\ast\\ 0&0&0\end{bmatrix}
+\]
+has only two pivots for three columns. The matrix is then singular, and by
+\refsubsec{reachability} some targets are unreachable while others are reached in
+infinitely many ways.
+
+\begin{remark}
+It is worth separating two situations that look alike. A zero \emph{encountered}
+in a pivot position is a bookkeeping accident, repaired by a row exchange. A
+zero that \emph{survives} every available exchange is a statement about the
+matrix: its columns are dependent, and no algorithm can repair that.
+\end{remark}
+
+\section{Inverses and Gauss--Jordan}
+\labsec{inverses}
+
+For a square matrix, \(A^{-1}\) is the matrix with \(A^{-1}A=I=AA^{-1}\). It
+exists exactly when \(A\) is non-singular. The quickest certificate of
+\emph{non}-existence is a non-zero vector in the nullspace.
+
+\begin{proposition}
+If \(A\vect{x}=\vect{0}\) for some \(\vect{x}\neq\vect{0}\), then \(A\) has no
+inverse.
+\end{proposition}
+
+\begin{proof}
+Suppose \(A^{-1}\) existed. Multiplying \(A\vect{x}=\vect{0}\) on the left gives
+\(\vect{x}=A^{-1}\vect{0}=\vect{0}\), contradicting \(\vect{x}\neq\vect{0}\).
+\end{proof}
+
+\begin{example}
+For \(A=\begin{bmatrix}1&3\\2&6\end{bmatrix}\) the vector
+\(\vect{x}=\begin{bmatrix}3&-1\end{bmatrix}\tp\) gives
+\[
+	\begin{bmatrix}1&3\\2&6\end{bmatrix}\begin{bmatrix}3\\-1\end{bmatrix}
+	=\begin{bmatrix}0\\0\end{bmatrix},
+\]
+so this \(A\) is singular. The second column is three times the first, which is
+the same fact stated in the column picture.
+\end{example}
+
+To \emph{find} an inverse, note that column \(j\) of \(A^{-1}\) is the solution
+of \(A\vect{x}=\vect{e}_j\), where \(\vect{e}_j\) is column \(j\) of \(I\). The
+\(n\) systems share the same left-hand side, so they can be eliminated together.
+Gauss--Jordan places \(A\) and \(I\) side by side and reduces until the left
+block is the identity:
+\[
+	\begin{bmatrix}A&I\end{bmatrix}\longrightarrow\begin{bmatrix}I&A^{-1}\end{bmatrix}.
+\]
+
+\begin{example}
+Take \(A=\begin{bmatrix}1&3\\2&7\end{bmatrix}\). Subtracting \(2\times\)row~1
+from row~2, then \(3\times\)the new row~2 from row~1:
+\[
+	\left[\begin{array}{cc|cc}1&3&1&0\\2&7&0&1\end{array}\right]
+	\rightarrow
+	\left[\begin{array}{cc|cc}1&3&1&0\\0&1&-2&1\end{array}\right]
+	\rightarrow
+	\left[\begin{array}{cc|cc}1&0&7&-3\\0&1&-2&1\end{array}\right].
+\]
+So \(A^{-1}=\begin{bmatrix}7&-3\\-2&1\end{bmatrix}\), and multiplying out
+confirms \(AA^{-1}=I\).
+\end{example}
+
+\marginnote{Why the method works: the row operations amount to left
+multiplication by some matrix \(E\) with \(EA=I\), and that identity says
+\(E=A^{-1}\). The right-hand block simply records \(E\) by tracking what the
+same operations do to \(I\).}
+
+Two facts about inverses are used constantly. First, the inverse of a product
+reverses the order,
+\[
+	(AB)^{-1}=B^{-1}A^{-1},
+\]
+which is checked by multiplying: \(AB\,B^{-1}A^{-1}=AIA^{-1}=I\). Second,
+inversion commutes with transposition, \((A\tp)^{-1}=(A^{-1})\tp\).
+
+\begin{remark}
+In numerical work one almost never forms \(A^{-1}\) explicitly. Solving
+\(A\vect{x}=\vect{b}\) by elimination costs about a third as much as inverting
+\(A\) and is better behaved in floating point. The inverse is a tool for
+reasoning, not usually for computing.
+\end{remark}
+
+\section{The factorisation \texorpdfstring{\(A=LU\)}{A=LU}}
+\labsec{lu}
+
+Return to \(\bigl(E_{32}E_{21}\bigr)A=U\) and move the elimination matrices to
+the other side:
+\[
+	A=E_{21}^{-1}E_{32}^{-1}\,U=LU .
+\]
+The remarkable part is what \(L\) contains. Multiplying the two inverses,
+\[
+	L=\begin{bmatrix}1&0&0\\3&1&0\\0&0&1\end{bmatrix}
+	  \begin{bmatrix}1&0&0\\0&1&0\\0&2&1\end{bmatrix}
+	 =\begin{bmatrix}1&0&0\\3&1&0\\0&2&1\end{bmatrix},
+\]
+whose subdiagonal entries are exactly the multipliers \(3\) and \(2\) used
+during elimination --- in their original positions, with no interference between
+them. Verifying,
+\[
+	LU=\begin{bmatrix}1&0&0\\3&1&0\\0&2&1\end{bmatrix}
+	   \begin{bmatrix}1&2&1\\0&2&-2\\0&0&5\end{bmatrix}
+	 =\begin{bmatrix}1&2&1\\3&8&1\\0&4&1\end{bmatrix}=A .
+\]
+
+\begin{theorem}
+If elimination on \(A\) needs no row exchanges, then \(A=LU\) where \(U\) is the
+upper triangular matrix produced by elimination and \(L\) is lower triangular
+with ones on the diagonal and the multiplier \(\ell_{ij}\) in position
+\((i,j)\). With row exchanges, the same statement holds for a permuted matrix:
+\(PA=LU\).
+\end{theorem}
+
+\marginnote{The multipliers land in \(L\) unchanged only because the inverses are
+multiplied in the reverse order of the eliminations. Multiplying them in the
+forward order produces cross terms and destroys the pattern.}
+
+Once \(A=LU\) is available, every subsequent right-hand side is cheap: solve
+\(L\vect{c}=\vect{b}\) downwards, then \(U\vect{x}=\vect{c}\) upwards. Both are
+triangular, so the expensive part of the work is done once and reused. A
+symmetric variant splits the pivots out as \(A=LDU\) with \(D\) diagonal, and for
+symmetric positive definite matrices it specialises to \(A=LL\tp\); positive
+definiteness is taken up in \refch{eigenvalues}.
+
+\section{Transposes and symmetry}
+\labsec{transposes}
+
+The transpose exchanges rows and columns, \((A\tp)_{ij}=a_{ji}\). Its two rules
+are
+\[
+	(AB)\tp=B\tp A\tp,
+	\qquad
+	(A\tp)\tp=A .
+\]
+A matrix is \emph{symmetric} when \(A\tp=A\). Symmetric matrices are not a
+curiosity: for any \(A\) whatsoever, both \(A\tp A\) and \(AA\tp\) are
+symmetric, since
+\[
+	(A\tp A)\tp=A\tp(A\tp)\tp=A\tp A .
+\]
+
+\marginnote{\(A\tp A\) is the matrix behind least squares in
+\refch{orthogonality} and behind the singular value decomposition in
+\refch{svd}. Almost every time a rectangular matrix has to be turned into a
+square one, this is how it is done.}
+
+\section{The cost of elimination}
+\labsec{cost}
+
+Clearing the first column of an \(n\times n\) matrix touches roughly \(n^{2}\)
+entries, the second about \((n-1)^{2}\), and so on, giving
+\[
+	n^{2}+(n-1)^{2}+\cdots+1\approx\tfrac{1}{3}n^{3}
+\]
+operations for the factorisation, while each back-substitution costs about
+\(n^{2}\). The cubic term is why reusing \(A=LU\) across many right-hand
+sides matters, and why the size of a linear solve grows uncomfortably fast ---
+the practical reason that iterative and gradient-based methods dominate once
+\(n\) reaches the scale of a machine learning problem.

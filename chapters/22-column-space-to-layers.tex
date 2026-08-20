@@ -1,0 +1,109 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{From Column Space to Linear Layers}
+\labch{column-space-to-layers}
+
+\sources{Strang, \emph{Introduction to Linear Algebra}, 6th ed.\ \cite{strang2023ila},
+Chapter~10; Zhang, Lipton, Li and Smola, \emph{Dive into Deep Learning}
+\cite{d2l2023}, Chapters~1--5.}
+
+The four parts of this book were assembled separately. This closing chapter says
+how they meet, and states --- deliberately conservatively --- what remains to be
+studied before the research question that gives the book its title can be
+approached.
+
+\section{A network is a composition of the objects already met}
+\labsec{network-as-composition}
+
+A feed-forward network alternates two kinds of map. The affine part,
+\[
+	Z=XW+\vect{1}\vect{b}\tp,
+\]
+is the batched matrix product of \refsec{batching}; the activation part applies a
+fixed scalar function elementwise. Nothing in either is new. What the
+composition adds is depth, and depth is what makes the resulting function
+non-linear.
+
+\begin{remark}
+Stacking affine maps with no activation between them achieves nothing. A
+product of matrices is a matrix, so the composition collapses to one linear map
+with the same column space. The activation is the only reason a second layer is worth
+having, which is a statement about \refsec{four-ways} rather than about biology.
+\end{remark}
+
+\section{Three questions, three answers already given}
+\labsec{three-questions}
+
+\paragraph{What can the model represent?}
+For a single linear layer the reachable outputs are exactly \(\Col(W\tp)\)
+applied to the inputs, so the rank of the weight matrix bounds what the layer can
+express --- the reachability question of \refsubsec{reachability} in applied
+clothing. Compressing a trained layer by truncating its singular values, as in
+\refsec{low-rank}, is a deliberate reduction of that rank.
+
+\paragraph{How is it fitted?}
+By gradient descent, whose direction is justified by \refsec{steepest}, whose
+step size is constrained by the curvature in \refeq{taylor2}, whose convergence
+rate is governed by the condition number in \refsec{gd-quadratic}, and whose cost
+is made acceptable by the association order in \refsec{backprop}.
+
+\paragraph{Why does the fitted model generalise?}
+Because training loss is a sample average of an expectation
+(\refsec{lln}), because the deviation of that average shrinks like \(1/\sqrt n\)
+(\refsec{clt}), and because the loss itself is a likelihood, so that penalising
+the weights is placing a prior on them (\refsec{bayesian}).
+
+\section{Where the linear picture runs out}
+\labsec{limits}
+
+Every question above was answered by treating the layer as linear and the
+activation as an afterthought. That works because the analysis is local: the
+Jacobian of \refsec{matrix-chain-rule} is a genuine linear map, and the whole of
+Part~I applies to it at each point. It does not describe the function globally,
+and it says nothing about which composition of layers should be preferred.
+
+Two limitations are worth naming, because they are what motivates looking
+further:
+
+\begin{description}
+	\item[The non-linearity is fixed.] In a conventional layer the parameters
+	are the entries of \(W\) and \(\vect{b}\); the activation is chosen in
+	advance and not learned. All the flexibility sits in the linear part.
+	\item[Interpretation is indirect.] The learned object is a large weight
+	matrix whose singular vectors carry no meaning supplied by the problem.
+	Understanding what a layer has learned is a separate research effort.
+\end{description}
+
+\begin{remark}
+Kolmogorov--Arnold networks are motivated by the first of these: they
+parameterise the univariate functions themselves rather than the linear mixing.
+Whether that reparameterisation delivers the advantages claimed for it is the
+question this repository exists to study, and it is not settled by anything in
+this book. \textbf{[needs verification]} --- the technical content of that
+literature has not yet been read, and no claim about it is made here.
+\end{remark}
+
+\section{What to read next}
+\labsec{next}
+
+The foundations assembled here are the standard ones, and they are sufficient to
+begin. The material that has not been covered, and that the next stage of these
+notes should add, is:
+
+\begin{enumerate}
+	\item tensors and automatic differentiation in practice, continuing the
+	notebooks already in this repository;
+	\item approximation theory for univariate functions, in particular spline
+	bases, which is the mathematics a Kolmogorov--Arnold parameterisation
+	rests on;
+	\item the Kolmogorov--Arnold representation theorem itself, in its original
+	form, before any neural interpretation of it;
+	\item the primary literature on these networks, read against that
+	background rather than as a substitute for it.
+\end{enumerate}
+
+\marginnote{The order matters. Reading the applied literature before the
+representation theorem invites accepting an analogy as a proof --- which is the
+failure mode these notes are written to avoid.}
+
+Part~I through Part~IV will be revised as that reading proceeds. The notes are
+intended to be maintained rather than finished.

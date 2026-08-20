@@ -1,0 +1,186 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Eigenvalues and Eigenvectors}
+\labch{eigenvalues}
+
+\sources{Strang, \emph{Introduction to Linear Algebra}, 6th ed.\ \cite{strang2023ila},
+§6.1--6.5; MIT 18.06 \cite{ocw1806}, Lectures~21--22 and 26--28.}
+
+Everything so far treated \(A\) as a machine for solving. This chapter asks a
+different question: are there directions in which \(A\) does nothing more
+interesting than stretching? The answer reorganises the matrix around those
+directions and makes repeated application easy to describe.
+
+\section{The defining equation}
+\labsec{eigen-definition}
+
+\begin{definition}
+A non-zero vector \(\vect{x}\) is an \emph{eigenvector} of \(A\in\R^{n\times n}\)
+with \emph{eigenvalue} \(\lambda\) when
+\[
+	A\vect{x}=\lambda\vect{x}.
+\]
+\end{definition}
+
+Rewriting as \((A-\lambda I)\vect{x}=\vect{0}\) shows that \(\lambda\) is an
+eigenvalue exactly when \(A-\lambda I\) is singular, since a non-zero vector must
+sit in its nullspace. By \refch{determinants} that is the condition
+\[
+	\det(A-\lambda I)=0,
+\]
+the \emph{characteristic equation}. Its left-hand side is a polynomial of degree
+\(n\) in \(\lambda\).
+
+\marginnote{Note the order of work: first find the \(\lambda\) that make the
+matrix singular, then find the nullspace for each. Eigenvectors are never found
+first.}
+
+\begin{example}
+For \(A=\begin{bmatrix}2&1\\1&2\end{bmatrix}\),
+\[
+	\det\begin{bmatrix}2-\lambda&1\\1&2-\lambda\end{bmatrix}
+	=(2-\lambda)^{2}-1=\lambda^{2}-4\lambda+3,
+\]
+with roots \(\lambda_1=3\) and \(\lambda_2=1\). Solving
+\((A-3I)\vect{x}=\vect{0}\) gives \(\vect{x}_1=[1,1]\tp\), and
+\((A-I)\vect{x}=\vect{0}\) gives \(\vect{x}_2=[1,-1]\tp\). The two eigenvectors
+are orthogonal, which \refsec{spectral} explains.
+\end{example}
+
+\section{Trace and determinant}
+\labsec{trace-det}
+
+Two shortcuts follow from comparing coefficients in the characteristic
+polynomial.
+
+\begin{proposition}
+The eigenvalues of \(A\), counted with multiplicity, satisfy
+\[
+	\sum_{i}\lambda_i=\operatorname{tr}A=\sum_i a_{ii},
+	\qquad
+	\prod_i\lambda_i=\det A .
+\]
+\end{proposition}
+
+For the example, \(3+1=4=2+2\) and \(3\cdot1=3=4-1\). In two dimensions these two
+equations determine the eigenvalues outright, which is often faster than forming
+the polynomial.
+
+\begin{remark}
+Singularity and a zero eigenvalue are the same statement, since the product of
+the eigenvalues is the determinant. The nullspace of \(A\) is precisely the
+eigenspace for \(\lambda=0\).
+\end{remark}
+
+\section{Diagonalisation and powers}
+\labsec{diagonalisation}
+
+Suppose \(A\) has \(n\) independent eigenvectors. Placing them in the columns of
+\(X\) and the eigenvalues on the diagonal of \(\Lambda\),
+\[
+	AX=X\Lambda
+	\quad\Longrightarrow\quad
+	A=X\Lambda X^{-1}.
+\]
+
+The payoff is that powers telescope:
+\[
+	A^{k}=X\Lambda^{k}X^{-1},
+\]
+because the inner \(X^{-1}X\) factors cancel. Raising a diagonal matrix to a
+power is done entry by entry, so the long-run behaviour of \(A^{k}\) is decided
+entirely by the sizes \(|\lambda_i|\).
+
+\begin{example}
+Let \(A=\begin{bmatrix}0.8&0.3\\0.2&0.7\end{bmatrix}\), whose columns sum to~1.
+Its trace is \(1.5\) and its determinant is \(0.5\), so the eigenvalues solve
+\(\lambda^{2}-1.5\lambda+0.5=0\), giving \(\lambda_1=1\) and \(\lambda_2=0.5\).
+The eigenvector for \(\lambda_1=1\) is \([3,2]\tp\); normalising it to sum to~1
+gives \([0.6,0.4]\tp\). Since \(0.5^{k}\to0\), every starting distribution
+converges to that vector.
+\end{example}
+
+\marginnote{This is the entire theory of Markov chains in miniature: an
+eigenvalue of exactly~1 supplies the steady state, and the second largest
+modulus sets the rate of approach.}
+
+Diagonalisation can fail. The matrix \(\begin{bmatrix}0&1\\0&0\end{bmatrix}\)
+has \(\lambda=0\) twice but only a one-dimensional eigenspace, so no basis of
+eigenvectors exists. Distinct eigenvalues guarantee independence and therefore
+diagonalisability; repeated eigenvalues may or may not.
+
+\section{Symmetric matrices}
+\labsec{spectral}
+
+Symmetric matrices are the well-behaved case, and they are the case that occurs
+in practice --- covariance matrices, Gram matrices \(A\tp A\), and Hessians are
+all symmetric.
+
+\begin{theorem}[Spectral theorem]
+If \(A\tp=A\) then all eigenvalues of \(A\) are real, eigenvectors for distinct
+eigenvalues are orthogonal, and \(A\) can be written
+\[
+	A=Q\Lambda Q\tp
+\]
+with \(Q\) orthogonal and \(\Lambda\) real diagonal.
+\end{theorem}
+
+\begin{proof}[Orthogonality]
+Let \(A\vect{x}=\lambda\vect{x}\) and \(A\vect{y}=\mu\vect{y}\) with
+\(\lambda\neq\mu\). Then
+\[
+	\lambda\,\vect{y}\tp\vect{x}=\vect{y}\tp A\vect{x}
+	=(A\vect{y})\tp\vect{x}=\mu\,\vect{y}\tp\vect{x},
+\]
+using symmetry in the middle step. Hence
+\((\lambda-\mu)\vect{y}\tp\vect{x}=0\), and since \(\lambda\neq\mu\) the inner
+product vanishes.
+\end{proof}
+
+Because \(Q^{-1}=Q\tp\), the factorisation writes \(A\) as a sum of orthogonal
+rank-one pieces,
+\[
+	A=\sum_{i=1}^{n}\lambda_i\,\vect{q}_i\vect{q}_i\tp ,
+\]
+which is the column-times-row reading of \refsec{four-ways}, applied here to
+the basis of eigenvectors.
+
+\section{Positive definite matrices}
+\labsec{positive-definite}
+
+\begin{definition}
+A symmetric \(A\) is \emph{positive definite} when \(\vect{x}\tp A\vect{x}>0\)
+for every \(\vect{x}\neq\vect{0}\), and \emph{positive semidefinite} when the
+inequality is weak.
+\end{definition}
+
+\begin{proposition}
+For a symmetric matrix \(A\) the following are equivalent: every eigenvalue is
+positive; every pivot is positive; \(\vect{x}\tp A\vect{x}>0\) for every
+\(\vect{x}\neq\vect{0}\); and \(A=B\tp B\) for some \(B\) with independent
+columns.
+\end{proposition}
+
+\begin{example}
+\(A=\begin{bmatrix}2&1\\1&2\end{bmatrix}\) has eigenvalues \(3\) and \(1\),
+pivots \(2\) and \(\tfrac32\), and
+\(\vect{x}\tp A\vect{x}=2x_1^{2}+2x_1x_2+2x_2^{2}=(x_1+x_2)^{2}+x_1^{2}+x_2^{2}\),
+positive unless both components vanish. All three tests agree.
+\end{example}
+
+\marginnote{Positive definiteness is the matrix version of ``strictly convex''.
+\refch{gradient-methods} uses exactly this: a quadratic with a positive definite
+Hessian has a single minimum, and the ratio of largest to smallest eigenvalue
+predicts how slowly gradient descent will find it.}
+
+\section{Similar matrices}
+\labsec{similar}
+
+Matrices \(A\) and \(M^{-1}AM\) are called \emph{similar}. They have the same
+characteristic polynomial and hence the same eigenvalues, because
+\[
+	\det(M^{-1}AM-\lambda I)=\det\bigl(M^{-1}(A-\lambda I)M\bigr)=\det(A-\lambda I).
+\]
+Similarity is a change of basis, so the message is that eigenvalues belong to
+the underlying transformation rather than to the particular array of numbers
+used to record it --- a point taken up properly in
+\refch{linear-transformations}.

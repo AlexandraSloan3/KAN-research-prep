@@ -1,0 +1,120 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Linear Algebra in Optimisation}
+\labch{optimization}
+
+\sources{Strang, \emph{Introduction to Linear Algebra}, 6th ed.\ \cite{strang2023ila},
+Chapter~9.}
+
+Optimisation problems that can be solved exactly are, with few exceptions,
+quadratic ones. This chapter collects the linear algebra that governs them: the
+norms used to measure error, the condition number that predicts difficulty, and
+the quadratic form whose minimiser is a linear solve in disguise. The calculus
+and the algorithms come in \refch{gradient-methods}.
+
+\section{Norms}
+\labsec{norms}
+
+For vectors the three standard choices are
+\[
+	\lVert\vect{x}\rVert_1=\sum_i|x_i|,
+	\qquad
+	\lVert\vect{x}\rVert_2=\Bigl(\sum_i x_i^{2}\Bigr)^{1/2},
+	\qquad
+	\lVert\vect{x}\rVert_\infty=\max_i|x_i| .
+\]
+All three satisfy the triangle inequality; only \(\lVert\cdot\rVert_2\) comes
+from an inner product, which is why projection and least squares are stated in
+it.
+
+\marginnote{The choice is not cosmetic. Penalising \(\lVert\cdot\rVert_1\)
+drives coefficients exactly to zero and produces sparse solutions; penalising
+\(\lVert\cdot\rVert_2\) shrinks them smoothly and keeps them non-zero.}
+
+For matrices, two norms are used constantly:
+\[
+	\lVert A\rVert_2=\sigma_1,
+	\qquad
+	\lVert A\rVert_F=\Bigl(\sum_{i,j}a_{ij}^{2}\Bigr)^{1/2}
+	=\Bigl(\sum_i\sigma_i^{2}\Bigr)^{1/2},
+\]
+the largest singular value and the Frobenius norm. Both are supplied by the
+decomposition of \refch{svd}; the second identity says the Frobenius norm does
+not care which orthonormal basis the matrix is written in.
+
+\section{Conditioning}
+\labsec{conditioning}
+
+\begin{definition}
+The \emph{condition number} of an invertible \(A\) is
+\(\kappa(A)=\sigma_1/\sigma_n\), the ratio of largest to smallest singular value.
+\end{definition}
+
+It bounds how much a relative perturbation of \(\vect{b}\) can be amplified in
+the solution of \(A\vect{x}=\vect{b}\): a relative change of size \(\varepsilon\)
+in the data produces a relative change of at most \(\kappa(A)\varepsilon\) in the
+answer. A matrix with \(\kappa=10^{8}\) loses roughly eight digits, whatever
+algorithm is used.
+
+\begin{remark}
+This is the precise reason \refch{orthogonality} warned against forming
+\(A\tp A\). Its singular values are the squares of those of \(A\), so
+\(\kappa(A\tp A)=\kappa(A)^{2}\) and the difficulty is squared along with them.
+\end{remark}
+
+\section{Quadratic forms}
+\labsec{quadratic-forms}
+
+A quadratic function on \(\R^{n}\) can always be written
+\[
+	f(\vect{x})=\tfrac12\vect{x}\tp A\vect{x}-\vect{b}\tp\vect{x}+c,
+\]
+with \(A\) symmetric --- any non-symmetric part cancels in the product and can be
+discarded without changing \(f\).
+
+\begin{theorem}
+If \(A\) is symmetric positive definite then \(f\) has a unique minimiser, and it
+is the solution of \(A\vect{x}=\vect{b}\).
+\end{theorem}
+
+\begin{proof}
+Let \(A\vect{x}^{\star}=\vect{b}\) and write \(\vect{x}=\vect{x}^{\star}+\vect{d}\).
+Expanding and using symmetry,
+\[
+	f(\vect{x})=f(\vect{x}^{\star})+\tfrac12\vect{d}\tp A\vect{d},
+\]
+and positive definiteness makes the last term strictly positive unless
+\(\vect{d}=\vect{0}\).
+\end{proof}
+
+\marginnote{Minimisation and solving are therefore the same problem wearing two
+hats. Least squares in \refch{orthogonality} was the first instance:
+\(\lVert A\vect{x}-\vect{b}\rVert^{2}\) is a quadratic form whose matrix is
+\(A\tp A\).}
+
+The level sets of \(f\) are ellipsoids whose axes are the eigenvectors of \(A\),
+with lengths proportional to \(1/\sqrt{\lambda_i}\). A large ratio
+\(\lambda_{\max}/\lambda_{\min}\) makes them long and thin, which is exactly the
+geometry that slows gradient methods down in \refch{gradient-methods}.
+
+\section{Regularisation}
+\labsec{regularisation}
+
+When \(A\tp A\) is singular or nearly so, adding a multiple of the identity
+repairs it:
+\[
+	(A\tp A+\delta^{2}I)\hat{\vect{x}}=A\tp\vect{b},
+	\qquad \delta>0 .
+\]
+The matrix on the left is positive definite for every \(\delta>0\), since
+\(\vect{x}\tp(A\tp A+\delta^{2}I)\vect{x}
+=\lVert A\vect{x}\rVert^{2}+\delta^{2}\lVert\vect{x}\rVert^{2}\). In terms of the
+singular value decomposition each \(\sigma_i\) is replaced by
+\(\sigma_i/(\sigma_i^{2}+\delta^{2})\), so small singular values are damped
+rather than inverted.
+
+\begin{remark}
+Statistics calls this ridge regression and deep learning calls it weight decay,
+but the linear algebra is identical: trade a little bias for a large reduction
+in sensitivity to noise. As \(\delta\to0\) the solution approaches the
+pseudoinverse answer of \refsec{pseudoinverse}.
+\end{remark}

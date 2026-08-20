@@ -1,0 +1,118 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Linear Transformations and Change of Basis}
+\labch{linear-transformations}
+
+\sources{Strang, \emph{Introduction to Linear Algebra}, 6th ed.\ \cite{strang2023ila},
+§8.1--8.3; MIT 18.06 \cite{ocw1806}, Lectures~33--34.}
+
+A matrix is a table of numbers; a linear transformation is a rule. This chapter
+separates the two, which explains why the same rule can be recorded by many
+different matrices and why choosing the basis well is worth the trouble.
+
+\section{What makes a map linear}
+\labsec{linear-maps}
+
+\begin{definition}
+A map \(T:V\to W\) between vector spaces is \emph{linear} when
+\[
+	T(\vect{u}+\vect{v})=T(\vect{u})+T(\vect{v}),
+	\qquad
+	T(c\vect{v})=cT(\vect{v})
+\]
+for all \(\vect{u},\vect{v}\in V\) and scalars \(c\).
+\end{definition}
+
+Setting \(c=0\) gives \(T(\vect{0})=\vect{0}\), so any map that shifts the origin
+is disqualified. Rotation about the origin, projection onto a subspace, and
+differentiation of polynomials are linear; translation and the map
+\(\vect{v}\mapsto\lVert\vect{v}\rVert\) are not.
+
+\marginnote{The two conditions combine into one: \(T\) is linear exactly when it
+commutes with taking linear combinations. Everything in this book is a
+consequence of that single permission.}
+
+\section{The matrix of a transformation}
+\labsec{transformation-matrix}
+
+Fix a basis \(\vect{v}_1,\ldots,\vect{v}_n\) of \(V\) and a basis
+\(\vect{w}_1,\ldots,\vect{w}_m\) of \(W\). Because \(T\) respects combinations,
+it is determined by what it does to the basis vectors. Writing each image in the
+output basis,
+\[
+	T(\vect{v}_j)=\sum_{i=1}^{m}a_{ij}\vect{w}_i,
+\]
+collects the coefficients into a matrix \(A\in\R^{m\times n}\), and the rule
+becomes matrix multiplication in coordinates.
+
+\begin{remark}
+Column \(j\) of \(A\) is nothing other than the coordinate vector of
+\(T(\vect{v}_j)\). Building the matrix of a transformation is always the same
+mechanical act: feed in each basis vector, write the answer in the output basis,
+and stack the results as columns.
+\end{remark}
+
+\begin{example}
+Let \(V\) be the polynomials of degree at most \(3\), with basis
+\(1,t,t^{2},t^{3}\), and let \(W\) be those of degree at most \(2\), with basis
+\(1,t,t^{2}\). Differentiation sends \(1\mapsto0\), \(t\mapsto1\),
+\(t^{2}\mapsto2t\), \(t^{3}\mapsto3t^{2}\), so
+\[
+	A=\begin{bmatrix}0&1&0&0\\0&0&2&0\\0&0&0&3\end{bmatrix}.
+\]
+Its nullspace is spanned by \([1,0,0,0]\tp\), the constants --- exactly the
+polynomials that differentiate to zero --- and its rank is \(3\), matching
+\(3+1=4\) in \refch{four-subspaces}.
+\end{example}
+
+\begin{example}
+Rotation of \(\R^{2}\) by an angle \(\theta\) sends \(\vect{e}_1\) to
+\((\cos\theta,\sin\theta)\) and \(\vect{e}_2\) to \((-\sin\theta,\cos\theta)\), so
+\[
+	A=\begin{bmatrix}\cos\theta&-\sin\theta\\ \sin\theta&\cos\theta\end{bmatrix},
+\]
+which satisfies \(A\tp A=I\): rotations preserve length, as an orthogonal matrix
+must.
+\end{example}
+
+\section{Change of basis}
+\labsec{change-of-basis}
+
+Keeping the transformation and changing the basis changes the matrix. Let \(M\)
+have as its columns the new basis vectors expressed in the old basis. A vector
+with new coordinates \(\vect{c}\) has old coordinates \(M\vect{c}\), and the two
+matrices of the same transformation are related by
+\[
+	A_{\text{new}}=M^{-1}A_{\text{old}}M .
+\]
+
+This is the similarity relation of \refsec{similar}, now with its meaning
+supplied: similar matrices are the same transformation described by two
+observers using different rulers. Eigenvalues, trace, determinant and rank are
+properties of the transformation and are therefore identical for all of them;
+the individual entries are not.
+
+\marginnote{A useful sanity check when a formula looks wrong: ask whether the
+quantity you computed could possibly depend on the choice of basis. If it
+should not, and your expression does, the error is in the bookkeeping.}
+
+\section{Choosing the basis well}
+\labsec{good-basis}
+
+Diagonalisation is the statement that, for a diagonalisable \(A\), the
+eigenvector basis makes the matrix diagonal:
+\(\Lambda=X^{-1}AX\). In that basis the transformation is \(n\) independent
+scalings, and questions about powers, exponentials, and long-run behaviour become
+questions about numbers.
+
+When \(A\) is not square, or not diagonalisable, the singular value
+decomposition supplies the substitute. Taking \(\vect{v}_1,\ldots,\vect{v}_n\) as
+the input basis and \(\vect{u}_1,\ldots,\vect{u}_m\) as the output basis, the
+matrix of the transformation is \(\Sigma\) --- diagonal, non-negative, and
+ordered. No two-basis choice does better.
+
+\begin{remark}
+Read this way, the factorisations of Part~I are all answers to one question:
+\emph{which coordinates make this transformation simple?} Elimination answers it
+for solving, Gram--Schmidt for projecting, diagonalisation for iterating, and
+the singular value decomposition for approximating.
+\end{remark}
